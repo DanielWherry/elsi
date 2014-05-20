@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char ** argv){
 
 	const int SIZE = 1000000000;
-	int integers[SIZE];
+	int * integers;
+	integers = (int *)malloc(SIZE*sizeof(int));
 
 	FILE *outfile;
 
