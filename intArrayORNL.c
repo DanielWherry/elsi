@@ -12,7 +12,7 @@ int main(int argc, char ** argv){
 	
 		FILE *outfile;
 
-		outfile = fopen(argv[2],"wb");
+		outfile = fopen(argv[2],"w");
 
 		for(int i = 0; i < SIZE; i++){
 			integers[i] = i;
@@ -27,21 +27,31 @@ int main(int argc, char ** argv){
 		
 	}else if(strcmp(argv[1],"--verify") == 0){
 
-		//int* value;
+		int ch1, i;
+		i = 0;
 		FILE *infile;
 	
 		infile = fopen(argv[2],"r");
+		ch1 = getc(infile);
 
-		for (int i = 0; i < SIZE; i++){
-			if(i != fgetc(infile)){//fread(integers ,sizeof(int), SIZE, infile)){{
+		while((ch1 = fgetc(infile)) != EOF){
+			printf("This is from loop: %d\n",i);
+			if(ch1 != i ){	
+				printf("This is from file: %d\n", ch1);
+				printf("This is from loop: %d\n",i);			
 				printf("The files are not the same!!\n");
+				free(integers);
 				fclose(infile);
 				return 0;
-			}
+				
+			}i++;
 		}
+	
+		
 		printf("The files are equivalent!\n");
-		fclose(infile);
+		free(integers);
 		printf("Verified\n");
+		fclose(infile);
 		return 0;
 
 	}	
