@@ -5,8 +5,8 @@ Tool to mimic I/O patterns for Filesystem Benchmarking
 
 ## Goals
 
-- [ ] Read / write 1 billion integers in serial.
-- [ ] Verify that data can be read back in correctly
+- [x] Read / write 1 billion integers in serial.
+- [x] Verify that data can be read back in correctly
 - [ ] Use `MPI_Wtime` to measure how long reading / writing / verifying takes
 - [ ] Use `N` MPI ranks to read/write/verify data in `N` different files.
 - [ ] Use OpenMP to speed up generating/verifying data
