@@ -16,7 +16,6 @@ int main(int argc, char ** argv){
 
 		for(int i = 0; i < SIZE; i++){
 			integers[i] = i;
-			//fwrite(integers, sizeof(int), sizeof(integers),outfile);
 		}
 		fwrite(integers, sizeof(int), SIZE ,outfile);
 		printf("Created\n");
@@ -27,24 +26,19 @@ int main(int argc, char ** argv){
 		
 	}else if(strcmp(argv[1],"--verify") == 0){
 
-		int ch1, i;
-		i = 0;
 		FILE *infile;
 	
 		infile = fopen(argv[2],"r");
-		ch1 = getc(infile);
+		fread(integers, sizeof(int), SIZE, infile);
 
-		while((ch1 = fgetc(infile)) != EOF){
-			printf("This is from loop: %d\n",i);
-			if(ch1 != i ){	
-				printf("This is from file: %d\n", ch1);
-				printf("This is from loop: %d\n",i);			
+		for(int i = 0; i < SIZE; i++){
+			if( ){			
 				printf("The files are not the same!!\n");
 				free(integers);
 				fclose(infile);
 				return 0;
 				
-			}i++;
+			}
 		}
 	
 		
