@@ -25,3 +25,6 @@
 # Vim files
 *.swo
 *.swp
+
+# Data Files
+*.dat
