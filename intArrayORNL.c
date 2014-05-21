@@ -30,9 +30,9 @@ int main(int argc, char ** argv){
 	
 		infile = fopen(argv[2],"r");
 		fread(integers, sizeof(int), SIZE, infile);
-
+	
 		for(int i = 0; i < SIZE; i++){
-			if( ){			
+			if(integers[i] != i){			
 				printf("The files are not the same!!\n");
 				free(integers);
 				fclose(infile);
@@ -44,7 +44,6 @@ int main(int argc, char ** argv){
 		
 		printf("The files are equivalent!\n");
 		free(integers);
-		printf("Verified\n");
 		fclose(infile);
 		return 0;
 
@@ -52,6 +51,4 @@ int main(int argc, char ** argv){
 	
 	return 0;
 }
-	
-
 	
