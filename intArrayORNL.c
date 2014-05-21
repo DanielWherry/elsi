@@ -3,18 +3,26 @@
 #include <string.h>
 #include <mpi.h>
 
+
 int main(int argc, char ** argv){
 	
 	MPI_Init(&argc, &argv);
 	double startOpen, endOpen, startArr, endArr, startRoW, endRoW, startClose, endClose;// RoW = Read or Write
-	const int SIZE = 1000;
+	int SIZE;
+
+/*	if(strcmp(argv[3],"--numelements") == 0){
+		const int SIZE = atoi(argv[4]);	
+	}else{
+		SIZE = 1000;
+	}*/
+	
 	int* integers;
-	integers = (int *)malloc(SIZE*sizeof(int));
+	integers = (int*)malloc(SIZE * sizeof(int));
 	
 	if(strcmp(argv[1],"--create") == 0){	
 	
 		startOpen = MPI_Wtime();// Start timing
-		FILE *outfile;
+		FILE* outfile;
 		outfile = fopen(argv[2],"w");
 		endOpen = MPI_Wtime();// End timing
 
@@ -61,25 +69,37 @@ int main(int argc, char ** argv){
 			if(integers[i] != i){
 				endArr = MPI_Wtime();// End Timing if files not same
 			
-				printf("The files are not the same!!\n");
+				printf("\nThe files are not the same!!\n");
 				free(integers);
 
 				startClose = MPI_Wtime();// Start timing
 				fclose(infile);
 				endClose = MPI_Wtime();// End Timing
-
+				
+				printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
+				printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
+				printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
+				printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
+		
 				return 0;
 				
 			}
 		}
 		endArr = MPI_Wtime();// End Timing if files same
 		
-		printf("The files are equivalent!\n");
+		printf("\nThe files are equivalent!\n");
 		free(integers);
 		
 		startClose = MPI_Wtime();// Start Timing
 		fclose(infile);
 		endClose = MPI_Wtime();// End Timing
+
+		printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
+		printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
+		printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
+		printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
+
+
 
 		return 0;
 
