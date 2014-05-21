@@ -41,7 +41,7 @@ int main(int argc, char ** argv){
 					
 				startOpen = MPI_Wtime();// Start timing
 				FILE* outfile;
-				outfile = fopen(argv[2],"w");
+				outfile = fopen(optarg,"w");
 				endOpen = MPI_Wtime();// End timing
 		
 				startArr = MPI_Wtime();// Start Timing
@@ -75,7 +75,7 @@ int main(int argc, char ** argv){
 					
 				startOpen = MPI_Wtime();//Start Timing
 				FILE *infile;	
-				infile = fopen(argv[2],"r");
+				infile = fopen(optarg,"r");
 				endOpen = MPI_Wtime();// End Timing
 
 				startRoW = MPI_Wtime();//Start Timing
@@ -99,7 +99,8 @@ int main(int argc, char ** argv){
 						printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
 						printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
 			
-					break;
+					return 0;
+					
 					
 				}
 			}
