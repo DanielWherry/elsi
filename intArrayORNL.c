@@ -74,13 +74,14 @@ int main(int argc, char ** argv){
 
 		}else{
 			printf("You have made a mistake!! Did you forget an option?\n");
-		}	
+		}
+	MPI_Finalize();	
 	return 0;
 
 }
 
 
-//THIS FUNCTION PRINTS CREEATION TIMING INFORMATION
+//THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose, int size){
 
 	printf("\nCreated\n");
@@ -187,5 +188,6 @@ void verifyFile(char filename[], int SIZE, int integers[]){
 
 
 }
+
 
 	
