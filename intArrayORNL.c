@@ -4,23 +4,34 @@
 #include <mpi.h>
 #include <getopt.h>
 
+void createFile(char*, int, int*);
+void verifyFile(char*, int, int* );
+void printCreateFile(double , double , double , double , double , double , double , double , int);
+void printVerifyFile(double , double , double , double , double , double , double , double );
 
 int main(int argc, char ** argv){
 	
 	MPI_Init(&argc, &argv);
-	double startOpen, endOpen, startArr, endArr, startRoW, endRoW, startClose, endClose;// RoW = Read or Write
-	int SIZE = 0, opt = 0; 
+	int SIZE = 0, opt = 0;
 
-	
-	char string[30];
+	char filename[50]; 
 
-	static struct option long_options[] = {
+	typedef enum {
+		create,
+		verify
+	} Choice;
+
+	Choice createOrVerify;
+
+	struct option long_options[] = {
 		{"numElements", required_argument, 0, 'n' },
         	{"create", required_argument, 0, 'c' },
 		{"verify", required_argument, 0, 'v' },
 		{NULL,0,0,0}
 	};
 
+
+	
 	int long_index = 0;
 
 
@@ -29,102 +40,152 @@ int main(int argc, char ** argv){
 			case 'n' : 
 				
 				SIZE = atoi(optarg);
-				int* integers;
-				integers=(int*) malloc(SIZE * sizeof(int));
-
+				
 				break;
 
 			case 'c' :	
-	
-			//	int* integers;
-			//	integers=(int*) malloc(SIZE * sizeof(int));
-					
-				startOpen = MPI_Wtime();// Start timing
-				FILE* outfile;
-				outfile = fopen(optarg,"w");
-				endOpen = MPI_Wtime();// End timing
+				
+				createOrVerify = create;
+				strcpy(filename,optarg); 
 		
-				startArr = MPI_Wtime();// Start Timing
-				for(int i = 0; i < SIZE; i++){
-					integers[i] = i;
-				}
-				endArr = MPI_Wtime();// End Timing
-				
-				startRoW = MPI_Wtime();// Start Timing
-				fwrite(integers, sizeof(int), SIZE ,outfile); 	
-				endRoW = MPI_Wtime();// End Timing
-	
-				printf("\nCreated\n");
-			
-				free(integers);
-				
-				startClose = MPI_Wtime();//Start Timing
-				fclose(outfile);
-				endClose = MPI_Wtime();// End Timing
-	
-	
-				printf("Time taken to open file for writing: %f seconds.\n",endOpen-startOpen);
-				printf("Time taken to create array with %d entries: %f seconds.\n", SIZE, endArr-startArr);
-				printf("Time taken to write entries of the array to the file: %f seconds.\n", endRoW-startRoW);
-				printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
-				
-
 				break;
 
 			case 'v' : 
-					
-				startOpen = MPI_Wtime();//Start Timing
-				FILE *infile;	
-				infile = fopen(optarg,"r");
-				endOpen = MPI_Wtime();// End Timing
+			
+				createOrVerify = verify;					
+				strcpy(filename,optarg); 
 
-				startRoW = MPI_Wtime();//Start Timing
-				fread(integers, sizeof(int), SIZE, infile);
-				endRoW = MPI_Wtime();// End Timing
-				
-				startArr = MPI_Wtime();// Start Timing
-				for(int i = 0; i < SIZE; i++){
-					if(integers[i] != i){
-						endArr = MPI_Wtime();// End Timing if files not same
-					
-						printf("\nThe files are not the same!!\n");
-						free(integers);
+				break;
 		
-						startClose = MPI_Wtime();// Start timing
-						fclose(infile);
-						endClose = MPI_Wtime();// End Timing
-						
-						printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
-						printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
-						printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
-						printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
-			
-					return 0;
+		}
 					
-					
-				}
-			}
-			endArr = MPI_Wtime();// End Timing if files same
 			
-			printf("\nThe files are equivalent!\n");
-			free(integers);
+	}
+		int* integers = (int*) malloc(SIZE * sizeof(int));
+
+		if(createOrVerify == create){
+
+			createFile(filename, SIZE, integers);
+
 			
-			startClose = MPI_Wtime();// Start Timing
-			fclose(infile);
-			endClose = MPI_Wtime();// End Timing
-	
-			printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
-			printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
-			printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
-			printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
-	
-	
-	
-			break;
-	
+		}else if(createOrVerify == verify){
+
+			verifyFile(filename, SIZE, integers);
+
+		}else{
+			printf("You have made a mistake!! Did you forget an option?\n");
 		}	
-	}	
 	return 0;
 
 }
+
+
+//THIS FUNCTION PRINTS CREEATION TIMING INFORMATION
+void printCreateFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose, int size){
+
+	printf("\nCreated\n");
+	printf("Time taken to open file for writing: %f seconds.\n",endOpen-startOpen);
+	printf("Time taken to create array with %d entries: %f seconds.\n", size, endArr-startArr);
+	printf("Time taken to write entries of the array to the file: %f seconds.\n", endRoW-startRoW);
+	printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
+
+
+}
+//THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
+void printVerifyFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose){
+		
+	printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
+	printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
+	printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
+	printf("Time taken to close file: %f seconds.\n\n",endClose-startClose);
+
+
+}
+//THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
+void createFile(char filename[], int SIZE, int integers[]){	
+	double startOpen, endOpen, startArr, endArr, startRoW, endRoW, startClose, endClose;// RoW = Read or Write
+
+	startOpen = MPI_Wtime();// Start timing
+	FILE* outfile;
+	outfile = fopen(filename,"w");
+	endOpen = MPI_Wtime();// End timing
+
+	startArr = MPI_Wtime();// Start Timing
+	for(int i = 0; i < SIZE; i++){
+		integers[i] = i;
+	}
+	endArr = MPI_Wtime();// End Timing
+			
+	startRoW = MPI_Wtime();// Start Timing
+	fwrite(integers, sizeof(int), SIZE, outfile);
+	endRoW = MPI_Wtime();// End Timing
+
+	
+	free(integers);
+				
+	startClose = MPI_Wtime();//Start Timing
+	fclose(outfile);
+	endClose = MPI_Wtime();// End Timing
+	
+	
+	printCreateFile(endOpen, startOpen, endRoW, startRoW, endArr, startArr, endClose, startClose, SIZE);	
+
+
+}
+//THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
+void verifyFile(char filename[], int SIZE, int integers[]){
+	double startOpen, endOpen, startArr, endArr, startRoW, endRoW, startClose, endClose;// RoW = Read or Write
+	
+	typedef enum{
+		same,
+		notsame
+	} resultOfVerifyTest;
+
+	resultOfVerifyTest result = same;
+
+	startOpen = MPI_Wtime();//Start Timing
+	FILE *infile;	
+	infile = fopen(filename,"r");
+	endOpen = MPI_Wtime();// End Timing
+
+	startRoW = MPI_Wtime();//Start Timing
+	fread(integers, sizeof(int), SIZE, infile);
+	endRoW = MPI_Wtime();// End Timing
+				
+	startArr = MPI_Wtime();// Start Timing
+	for(int i = 0; i < SIZE; i++){
+		if(integers[i] != i){
+			endArr = MPI_Wtime();// End Timing if files not same
+				
+			free(integers);
+	
+			startClose = MPI_Wtime();// Start timing
+			fclose(infile);
+			endClose = MPI_Wtime();// End Timing
+						
+			printf("\nThe files are not the same!!\n");	
+			printVerifyFile(endOpen, startOpen, endRoW, startRoW, endArr, startArr, endClose, startClose);	
+
+			result = notsame;			
+
+	 		break;
+				
+		}
+	}
+	if(result == same){
+	endArr = MPI_Wtime();// End Timing if files same
+			
+	free(integers);
+			
+	startClose = MPI_Wtime();// Start Timing
+	fclose(infile);
+	endClose = MPI_Wtime();// End Timing
+	
+	printf("\nThe files are equivalent!!\n");
+	printVerifyFile(endOpen, startOpen, endRoW, startRoW, endArr, startArr, endClose, startClose);
+	}	
+
+
+}
+
 	
