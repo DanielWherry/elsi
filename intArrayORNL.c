@@ -69,17 +69,14 @@ int main(int argc, char ** argv){
 
 		if(createOrVerify == create){
 			
-			printf("Hello from process %d of %d\n", rank, size);
 			createFile(filename, SIZE, integers);
 
 			
 		}else if(createOrVerify == verify){
 
-			printf("Hello from process %d of %d\n", rank, size);
 			verifyFile(filename, SIZE, integers);
 
 		}else{
-			printf("Hello from process %d of %d\n", rank, size);
 			printf("You have made a mistake!! Did you forget an option?\n");
 		}
 	MPI_Finalize();	
@@ -91,6 +88,7 @@ int main(int argc, char ** argv){
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose, int size){
 
+	printf("Hello from process %d of %d\n", rank, size);
 	printf("\nCreated\n");
 	printf("Time taken to open file for writing: %f seconds.\n",endOpen-startOpen);
 	printf("Time taken to create array with %d entries: %f seconds.\n", size, endArr-startArr);
@@ -102,6 +100,7 @@ void printCreateFile(double endOpen, double startOpen, double endRoW, double sta
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose){
 		
+	printf("Hello from process %d of %d\n", rank, size);
 	printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
 	printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
 	printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
