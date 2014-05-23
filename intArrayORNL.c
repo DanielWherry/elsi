@@ -25,7 +25,6 @@ int main(int argc, char ** argv){
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
-	printf("\nNumber of Processes: %d\n", numProc);
 
 	int SIZE = 0, opt = 0;
 
@@ -100,20 +99,20 @@ int main(int argc, char ** argv){
 void printCreateFile(Timing* t, int size, int rank){
 
 	printf("\nCreated\n");
-	printf("Time taken to open file for writing from process %d: %f seconds.\n", rank ,t->open);
-	printf("Time taken to create array with %d entries from process %d: %f seconds.\n", size, rank, t->array);
-	printf("Time taken to write entries of the array to the file from process %d: %f seconds.\n", rank, t->readOrWrite);
-	printf("Time taken to close file from process %d: %f seconds.\n\n", rank, t->close);
+	printf("Time taken to open file for writing from rank %d: %f seconds.\n", rank ,t->open);
+	printf("Time taken to create array with %d entries from rank %d: %f seconds.\n", size, rank, t->array);
+	printf("Time taken to write entries of the array to the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
+	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);
 
 
 }
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(Timing* t, int rank){
 		
-	printf("Time taken to open file for reading from process %d: %f seconds.\n", rank, t->open);
-	printf("Time taken to create array whose entries are the values in the file from process %d: %f seconds.\n", rank, t->readOrWrite);
-	printf("Time taken to verify entries in the file from process %d: %f seconds.\n", rank, t->array);
-	printf("Time taken to close file from process %d: %f seconds.\n\n", rank, t->close);
+	printf("Time taken to open file for reading from rank %d: %f seconds.\n", rank, t->open);
+	printf("Time taken to create array whose entries are the values in the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
+	printf("Time taken to verify entries in the file from rank %d: %f seconds.\n", rank, t->array);
+	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);
 
 
 }
