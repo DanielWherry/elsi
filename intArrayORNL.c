@@ -11,7 +11,11 @@ void printVerifyFile(double , double , double , double , double , double , doubl
 
 int main(int argc, char ** argv){
 	
+	int rank, size;
+	
 	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	int SIZE = 0, opt = 0;
 
 	char filename[50]; 
@@ -64,15 +68,18 @@ int main(int argc, char ** argv){
 		int* integers = (int*) malloc(SIZE * sizeof(int));
 
 		if(createOrVerify == create){
-
+			
+			printf("Hello from process %d of %d\n", rank, size);
 			createFile(filename, SIZE, integers);
 
 			
 		}else if(createOrVerify == verify){
 
+			printf("Hello from process %d of %d\n", rank, size);
 			verifyFile(filename, SIZE, integers);
 
 		}else{
+			printf("Hello from process %d of %d\n", rank, size);
 			printf("You have made a mistake!! Did you forget an option?\n");
 		}
 	MPI_Finalize();	
