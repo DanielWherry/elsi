@@ -9,7 +9,7 @@ void verifyFile(char*, int, int* );
 void printCreateFile(double , double , double , double , double , double , double , double , int);
 void printVerifyFile(double , double , double , double , double , double , double , double );
 
-int rank, size;
+int rank, numProc;
 
 int main(int argc, char ** argv){
 	
@@ -17,7 +17,7 @@ int main(int argc, char ** argv){
 	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 	int SIZE = 0, opt = 0;
 
 	char filename[50]; 
@@ -90,8 +90,8 @@ int main(int argc, char ** argv){
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose, int size){
 
-	printf("Hello from process %d of %d\n", rank, size);
 	printf("\nCreated\n");
+	printf("Hello from process %d of %d\n", rank, numProc);
 	printf("Time taken to open file for writing: %f seconds.\n",endOpen-startOpen);
 	printf("Time taken to create array with %d entries: %f seconds.\n", size, endArr-startArr);
 	printf("Time taken to write entries of the array to the file: %f seconds.\n", endRoW-startRoW);
@@ -102,7 +102,7 @@ void printCreateFile(double endOpen, double startOpen, double endRoW, double sta
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose){
 		
-	printf("Hello from process %d of %d\n", rank, size);
+	printf("Hello from process %d of %d", rank, numProc);
 	printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
 	printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
 	printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
