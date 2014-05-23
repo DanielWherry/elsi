@@ -112,7 +112,8 @@ void createFile(char filename[], int SIZE, int integers[]){
 	endOpen = MPI_Wtime();// End timing
 
 	startArr = MPI_Wtime();// Start Timing
-	for(int i = 0; i < SIZE; i++){
+	int i;
+	for( i = 0; i < SIZE; i++){
 		integers[i] = i;
 	}
 	endArr = MPI_Wtime();// End Timing
@@ -154,7 +155,8 @@ void verifyFile(char filename[], int SIZE, int integers[]){
 	endRoW = MPI_Wtime();// End Timing
 				
 	startArr = MPI_Wtime();// Start Timing
-	for(int i = 0; i < SIZE; i++){
+	int i;
+	for( i = 0; i < SIZE; i++){
 		if(integers[i] != i){
 			endArr = MPI_Wtime();// End Timing if files not same
 				
