@@ -102,7 +102,7 @@ void printCreateFile(double endOpen, double startOpen, double endRoW, double sta
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(double endOpen, double startOpen, double endRoW, double startRoW, double endArr, double startArr, double endClose, double startClose){
 		
-	printf("Hello from process %d of %d", rank, numProc);
+	printf("Hello from process %d of %d\n", rank, numProc);
 	printf("Time taken to open file for reading: %f seconds.\n",endOpen-startOpen);
 	printf("Time taken to create array whose entries are the values in the file: %f seconds.\n", endRoW-startRoW);
 	printf("Time taken to verify entries in the file: %f seconds.\n", endArr-startArr);
