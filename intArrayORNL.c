@@ -4,27 +4,28 @@
 #include <mpi.h>
 #include <getopt.h>
 
-typedef struct Timing {
+typedef struct {
 	double open;
 	double array;
 	double readOrWrite;
 	double close;
 	} Timing;
 
-
-void createFile(char*, int, int*, int);
-void verifyFile(char*, int, int*, int);
+void setBoundsForRanks(int, int, int, int*, int*);
+void createFile(char*, int, int*, int, int, int, int);
+void verifyFile(char*, int*, int, int, int);
 void printCreateFile(Timing* , int, int);
 void printVerifyFile(Timing*, int);
 
 
 int main(int argc, char ** argv){
 	
-	int rank, numProc;
+	int rank, numProc, arraySize, lowerBound, upperBound;
 	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
+
 
 	int SIZE = 0, opt = 0;
 
@@ -79,18 +80,40 @@ int main(int argc, char ** argv){
 
 		if(createOrVerify == create){
 			
-			createFile(filename, SIZE, integers, rank);
-
+			setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
+			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc);
 			
 		}else if(createOrVerify == verify){
 
-			verifyFile(filename, SIZE, integers, rank);
+			setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
+			verifyFile(filename, integers, rank, lowerBound, upperBound);
 
 		}else{
+			free(integers);
 			printf("You have made a mistake!! Did you forget an option?\n");
 		}
 	MPI_Finalize();	
 	return 0;
+
+}
+
+
+void setBoundsForRanks(int rank, int numProc, int arraySize, int* lowerBound, int* upperBound){
+
+	int baseAmount = arraySize / numProc;
+	int extraWork = arraySize % numProc;
+	int finalAmount;
+
+	if(rank < extraWork){
+		finalAmount = baseAmount + 1;
+		*lowerBound = finalAmount * rank;
+		*upperBound = *lowerBound + baseAmount;
+	}else{
+		finalAmount = baseAmount;
+		*lowerBound = finalAmount * rank + extraWork;
+		*upperBound = *lowerBound + (baseAmount - 1);
+	}
+
 
 }
 
@@ -117,10 +140,13 @@ void printVerifyFile(Timing* t, int rank){
 
 }
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
-void createFile(char filename[], int SIZE, int integers[], int rank){	
+void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBound, int upperBound, int numProc){	
 	double start, end;
 	
 	Timing timerOfProcesses;
+	char str[20];
+	sprintf(str, "%d.dat", rank);
+	strcat(filename, str);
 	
 	start = MPI_Wtime();// Start timing
 	FILE* outfile;
@@ -130,14 +156,14 @@ void createFile(char filename[], int SIZE, int integers[], int rank){
 
 	start = MPI_Wtime();// Start Timing
 	int i;
-	for( i = 0; i < SIZE; i++){
+	for( i = lowerBound; i < upperBound; i++){
 		integers[i] = i;
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 			
 	start = MPI_Wtime();// Start Timing
-	fwrite(integers, sizeof(int), SIZE, outfile);
+	fwrite(integers, sizeof(int), upperBound, outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 	
@@ -148,12 +174,13 @@ void createFile(char filename[], int SIZE, int integers[], int rank){
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 	
-	printCreateFile(&timerOfProcesses, SIZE, rank);	
+	int sizeAssignedToEachRank = SIZE / numProc ;
+	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);	
 
 
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
-void verifyFile(char filename[], int SIZE, int integers[], int rank){
+void verifyFile(char filename[], int integers[], int rank, int lowerBound, int upperBound){
 	double start, end;
 
 	Timing timerOfProcesses;
@@ -164,6 +191,9 @@ void verifyFile(char filename[], int SIZE, int integers[], int rank){
 	} resultOfVerifyTest;
 
 	resultOfVerifyTest result = same;
+	char str[20];
+	sprintf(str, "%d.dat", rank);
+	strcat(filename, str);
 
 	start = MPI_Wtime();//Start Timing
 	FILE *infile;	
@@ -172,13 +202,14 @@ void verifyFile(char filename[], int SIZE, int integers[], int rank){
 	timerOfProcesses.open = end - start;
 
 	start = MPI_Wtime();//Start Timing
-	fread(integers, sizeof(int), SIZE, infile);
+	fread(integers, sizeof(int), upperBound, infile);
+
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 			
 	start = MPI_Wtime();// Start Timing
 	int i;
-	for( i = 0; i < SIZE; i++){
+	for( i = lowerBound; i < upperBound; i++){
 		if(integers[i] != i){
 			end = MPI_Wtime();// End Timing if files not same
 			timerOfProcesses.array = end - start;
