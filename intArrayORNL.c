@@ -174,7 +174,14 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 	
-	int sizeAssignedToEachRank = SIZE / numProc ;
+	int sizeAssignedToEachRank;
+	int extraWork = SIZE % numProc;
+	if(rank < extraWork){
+		sizeAssignedToEachRank = (SIZE / numProc) + 1;
+	}else{
+		sizeAssignedToEachRank = SIZE / numProc;
+	}
+		
 	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);	
 
 
