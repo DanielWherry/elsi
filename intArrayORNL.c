@@ -182,7 +182,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
 	
-	printf("Lower Bound: %d, Upper Bound: %d", lowerBound, upperBound);	
+	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",rank, lowerBound, upperBound);	
 	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);
 		
 
