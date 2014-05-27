@@ -76,16 +76,15 @@ int main(int argc, char ** argv){
 					
 			
 	}
-		int* integers = (int*) malloc(SIZE * sizeof(int));
+		setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
+		int* integers = (int*) malloc(((upperBound-lowerBound)+1) * sizeof(int));
 
 		if(createOrVerify == create){
 			
-			setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
 			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc);
 			
 		}else if(createOrVerify == verify){
 
-			setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
 			verifyFile(filename, integers, rank, lowerBound, upperBound);
 
 		}else{
@@ -161,9 +160,17 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
-			
+	int* startOfFile = integers + lowerBound;		
+	int sizeAssignedToEachRank;
+	int extraWork = SIZE % numProc;
+	if(rank < extraWork){
+		sizeAssignedToEachRank = (SIZE / numProc) + 1;
+	}else{
+		sizeAssignedToEachRank = SIZE / numProc;
+	}
+
 	start = MPI_Wtime();// Start Timing
-	fwrite(integers, sizeof(int), upperBound, outfile);
+	fwrite(startOfFile, sizeof(int), sizeAssignedToEachRank, outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 	
@@ -173,16 +180,9 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	fclose(outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
+	//Change sizeAssinged to Each
 	
-	int sizeAssignedToEachRank;
-	int extraWork = SIZE % numProc;
-	if(rank < extraWork){
-		sizeAssignedToEachRank = (SIZE / numProc) + 1;
-	}else{
-		sizeAssignedToEachRank = SIZE / numProc;
-	}
-	
-	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",rank, lowerBound, upperBound);	
+	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",lowerBound, upperBound, rank);	
 	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);
 		
 
