@@ -172,10 +172,8 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 		
-	int* pointer;
-	pointer = integers + lowerBound;
 	start = MPI_Wtime();// Start Timing
-	fwrite(pointer, sizeof(int), sizeAssignedToEachRank, outfile);
+	fwrite(integers, sizeof(int), sizeAssignedToEachRank, outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 				
@@ -230,8 +228,8 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 			
 	start = MPI_Wtime();// Start Timing
 	int i;
-	for( i = lowerBound; i < upperBound; i++){
-		if(integers[i] != i){
+	for( i = 0; i < sizeAssignedToEachRank; i++){
+		if(integers[i] != (lowerBound + i)){
 			end = MPI_Wtime();// End Timing if files not same
 			timerOfProcesses.array = end - start;
 	
