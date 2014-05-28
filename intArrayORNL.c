@@ -155,14 +155,6 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	outfile = fopen(filename,"w");
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
-
-	start = MPI_Wtime();// Start Timing
-	int i;
-	for( i = lowerBound; i < upperBound; i++){
-		integers[i] = i;
-	}
-	end = MPI_Wtime();// End Timing
-	timerOfProcesses.array = end - start;
 	
 	int sizeAssignedToEachRank;
 	int extraWork = SIZE % numProc;
@@ -171,7 +163,16 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	}else{
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
-	
+
+	start = MPI_Wtime();// Start Timing
+	int i;
+	for( i = 0; i < sizeAssignedToEachRank; i++){
+		integers[i] = lowerBound;
+		lowerBound++;
+	}
+	end = MPI_Wtime();// End Timing
+	timerOfProcesses.array = end - start;
+		
 	int* pointer;
 	pointer = integers + lowerBound;
 	start = MPI_Wtime();// Start Timing
