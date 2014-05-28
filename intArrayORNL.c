@@ -13,7 +13,7 @@ typedef struct {
 
 void setBoundsForRanks(int, int, int, int*, int*);
 void createFile(char*, int, int*, int, int, int, int);
-void verifyFile(char*, int*, int, int, int);
+void verifyFile(char*, int*, int, int, int, int, int);
 void printCreateFile(Timing* , int, int);
 void printVerifyFile(Timing*, int);
 
@@ -33,10 +33,11 @@ int main(int argc, char ** argv){
 
 	typedef enum {
 		create,
-		verify
+		verify,
+		nothing
 	} Choice;
 
-	Choice createOrVerify;
+	Choice createOrVerify = nothing;
 
 	struct option long_options[] = {
 		{"numElements", required_argument, 0, 'n' },
@@ -76,21 +77,23 @@ int main(int argc, char ** argv){
 					
 			
 	}
-		setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound); 
-		int* integers = (int*) malloc(((upperBound-lowerBound)+1) * sizeof(int));
+		setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound);
+		int sizeForRank = upperBound - lowerBound + 1;
+		int* integers = (int*) malloc(sizeForRank * sizeof(int));
 
 		if(createOrVerify == create){
 			
 			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc);
-			
+
 		}else if(createOrVerify == verify){
 
-			verifyFile(filename, integers, rank, lowerBound, upperBound);
-
+			verifyFile(filename, integers, rank, lowerBound, upperBound, SIZE, numProc);
+	
 		}else{
-			free(integers);
 			printf("You have made a mistake!! Did you forget an option?\n");
 		}
+		
+	free(integers);
 	MPI_Finalize();	
 	return 0;
 
@@ -161,7 +164,6 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 	
-	int* pointer = integers + lowerBound;		
 	int sizeAssignedToEachRank;
 	int extraWork = SIZE % numProc;
 	if(rank < extraWork){
@@ -169,13 +171,13 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	}else{
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
-
+	
+	int* pointer;
+	pointer = integers + lowerBound;
 	start = MPI_Wtime();// Start Timing
 	fwrite(pointer, sizeof(int), sizeAssignedToEachRank, outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
-	
-	free(integers);
 				
 	start = MPI_Wtime();//Start Timing
 	fclose(outfile);
@@ -190,9 +192,9 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
-void verifyFile(char filename[], int integers[], int rank, int lowerBound, int upperBound){
+void verifyFile(char filename[], int integers[], int rank, int lowerBound, int upperBound,int SIZE, int numProc){
 	double start, end;
-
+//fhdsjhfuashfb
 	Timing timerOfProcesses;
 	
 	typedef enum{
@@ -211,8 +213,17 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.open = end - start;
 
+	int sizeAssignedToEachRank;
+	int extraWork = SIZE % numProc;
+	if(rank < extraWork){
+		sizeAssignedToEachRank = (SIZE / numProc) + 1;
+	}else{
+		sizeAssignedToEachRank = SIZE / numProc;
+	}
+
+
 	start = MPI_Wtime();//Start Timing
-	fread(integers, sizeof(int), upperBound, infile);
+	fread(integers, sizeof(int), sizeAssignedToEachRank, infile);
 
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
@@ -223,8 +234,6 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 		if(integers[i] != i){
 			end = MPI_Wtime();// End Timing if files not same
 			timerOfProcesses.array = end - start;
-		
-			free(integers);
 	
 			start = MPI_Wtime();// Start timing
 			fclose(infile);
@@ -243,8 +252,6 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 	if(result == same){
 	end = MPI_Wtime();// End Timing if files same
 	timerOfProcesses.array = end - start;
-		
-	free(integers);
 			
 	start = MPI_Wtime();// Start Timing
 	fclose(infile);
