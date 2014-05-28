@@ -167,8 +167,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	start = MPI_Wtime();// Start Timing
 	int i;
 	for( i = 0; i < sizeAssignedToEachRank; i++){
-		integers[i] = lowerBound;
-		lowerBound++;
+		integers[i] = lowerBound + i;
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
