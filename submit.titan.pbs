@@ -1,0 +1,11 @@
+#!/bin/bash
+#    Begin PBS directives
+#PBS -A stf007
+#PBS -N striping-benchmark
+#PBS -M wherrydh@ornl.gov
+#PBS -m e b
+#PBS -l walltime=0:10:00,nodes=2
+#PBS -l gres=atlas1%atlas2
+#    End PBS directives and begin shell commands
+cd $MEMBERWORK/stf007
+aprun -n 32 ./striping-benchmark.titan.exe -n 2000 -c integer
