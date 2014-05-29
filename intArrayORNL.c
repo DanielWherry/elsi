@@ -123,21 +123,23 @@ void setBoundsForRanks(int rank, int numProc, int arraySize, int* lowerBound, in
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(Timing* t, int size, int rank){
 
-	printf("\nCreated\n");
+	printf("{\"rank\":\"%d\", \"Open Time\": \"%f\", \"Generation Time\": \"%f\", \"Write Time\": \"%f\", \"Close Time\": \"%f\"}\n",rank, t->open, t->array, t->readOrWrite, t->close);
+	/*printf("\nCreated\n");
 	printf("Time taken to open file for writing from rank %d: %f seconds.\n", rank ,t->open);
 	printf("Time taken to create array with %d entries from rank %d: %f seconds.\n", size, rank, t->array);
 	printf("Time taken to write entries of the array to the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
-	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);
+	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);*/
 
 
 }
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(Timing* t, int rank){
 		
-	printf("Time taken to open file for reading from rank %d: %f seconds.\n", rank, t->open);
+	printf("%f\n", t->open);
+	/*printf("Time taken to open file for reading from rank %d: %f seconds.\n", rank, t->open);
 	printf("Time taken to create array whose entries are the values in the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
 	printf("Time taken to verify entries in the file from rank %d: %f seconds.\n", rank, t->array);
-	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);
+	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);*/
 
 
 }
@@ -183,7 +185,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	timerOfProcesses.close = end - start;
 	//Change sizeAssinged to Each
 	
-	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",lowerBound, upperBound, rank);	
+//	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",lowerBound, upperBound, rank);	
 	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);
 		
 
@@ -192,7 +194,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
 void verifyFile(char filename[], int integers[], int rank, int lowerBound, int upperBound,int SIZE, int numProc){
 	double start, end;
-//fhdsjhfuashfb
+
 	Timing timerOfProcesses;
 	
 	typedef enum{
@@ -256,7 +258,7 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
-	printf("\nThe files are equivalent!!\n");
+	//printf("\nThe files are equivalent!!\n");
 	printVerifyFile(&timerOfProcesses, rank);
 	}	
 
