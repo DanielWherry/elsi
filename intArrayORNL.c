@@ -11,23 +11,25 @@ typedef struct {
 	double close;
 	} Timing;
 
-void setBoundsForRanks(int, int, int, int*, int*);
-void createFile(char*, int, int*, int, int, int, int);
-void verifyFile(char*, int*, int, int, int, int, int);
-void printCreateFile(Timing* , int, int);
+void setBoundsForRanks(int, int, uint64_t, uint64_t*, uint64_t*);
+void createFile(char*, uint64_t, uint64_t*, int , uint64_t, uint64_t, int);	
+void verifyFile(char*, uint64_t*, int, uint64_t, uint64_t, uint64_t, int);
+void printCreateFile(Timing* , uint64_t, int);
 void printVerifyFile(Timing*, int);
 
 
 int main(int argc, char ** argv){
 	
-	int rank, numProc, lowerBound, upperBound;
+	int rank, numProc; 
+	uint64_t lowerBound, upperBound;
 	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 
 
-	int SIZE = 0, opt = 0;
+	uint64_t SIZE = 0;
+	int opt = 0;
 
 	char filename[50]; 
 
@@ -77,9 +79,9 @@ int main(int argc, char ** argv){
 					
 			
 	}
-		setBoundsForRanks(rank, numProc, SIZE, &lowerBound, &upperBound);
-		int sizeForRank = upperBound - lowerBound + 1;
-		int* integers = (int*) malloc(sizeForRank * sizeof(int));
+		setBoundsForRanks(rank,numProc, SIZE, &lowerBound, &upperBound);
+		uint64_t sizeForRank = upperBound - lowerBound + 1;
+		uint64_t* integers = (uint64_t*) malloc(sizeForRank * sizeof(uint64_t));
 
 		if(createOrVerify == create){
 			
@@ -100,11 +102,11 @@ int main(int argc, char ** argv){
 }
 
 
-void setBoundsForRanks(int rank, int numProc, int arraySize, int* lowerBound, int* upperBound){
+void setBoundsForRanks(int rank, int numProc, uint64_t arraySize, uint64_t* lowerBound, uint64_t* upperBound){
 
-	int baseAmount = arraySize / numProc;
-	int extraWork = arraySize % numProc;
-	int finalAmount;
+	uint64_t baseAmount = arraySize / numProc;
+	uint64_t extraWork = arraySize % numProc;
+	uint64_t finalAmount;
 
 	if(rank < extraWork){
 		finalAmount = baseAmount + 1;
@@ -121,30 +123,20 @@ void setBoundsForRanks(int rank, int numProc, int arraySize, int* lowerBound, in
 
 
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
-void printCreateFile(Timing* t, int size, int rank){
+void printCreateFile(Timing* t, uint64_t size, int rank){
 
-	printf("{\"rank\":\"%d\", \"Open Time\": \"%f\", \"Generation Time\": \"%f\", \"Write Time\": \"%f\", \"Close Time\": \"%f\"}\n",rank, t->open, t->array, t->readOrWrite, t->close);
-	/*printf("\nCreated\n");
-	printf("Time taken to open file for writing from rank %d: %f seconds.\n", rank ,t->open);
-	printf("Time taken to create array with %d entries from rank %d: %f seconds.\n", size, rank, t->array);
-	printf("Time taken to write entries of the array to the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
-	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);*/
-
+	printf("{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f}\n",rank, t->open, t->array, t->readOrWrite, t->close);
 
 }
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(Timing* t, int rank){
 		
-	printf("%f\n", t->open);
-	/*printf("Time taken to open file for reading from rank %d: %f seconds.\n", rank, t->open);
-	printf("Time taken to create array whose entries are the values in the file from rank %d: %f seconds.\n", rank, t->readOrWrite);
-	printf("Time taken to verify entries in the file from rank %d: %f seconds.\n", rank, t->array);
-	printf("Time taken to close file from rank %d: %f seconds.\n\n", rank, t->close);*/
+	printf("{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f}\n",rank, t->open, t->array, t->readOrWrite, t->close);
 
 
 }
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
-void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBound, int upperBound, int numProc){	
+void createFile(char filename[], uint64_t SIZE, uint64_t integers[], int rank, uint64_t lowerBound, uint64_t upperBound, int numProc){	
 	double start, end;
 	
 	Timing timerOfProcesses;
@@ -158,8 +150,8 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
 	
-	int sizeAssignedToEachRank;
-	int extraWork = SIZE % numProc;
+	uint64_t sizeAssignedToEachRank;
+	uint64_t extraWork = SIZE % numProc;
 	if(rank < extraWork){
 		sizeAssignedToEachRank = (SIZE / numProc) + 1;
 	}else{
@@ -167,7 +159,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	}
 
 	start = MPI_Wtime();// Start Timing
-	int i;
+	uint64_t i;
 	for( i = 0; i < sizeAssignedToEachRank; i++){
 		integers[i] = lowerBound + i;
 	}
@@ -175,7 +167,7 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	timerOfProcesses.array = end - start;
 		
 	start = MPI_Wtime();// Start Timing
-	fwrite(integers, sizeof(int), sizeAssignedToEachRank, outfile);
+	fwrite(integers, sizeof(uint64_t), sizeAssignedToEachRank, outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 				
@@ -183,16 +175,14 @@ void createFile(char filename[], int SIZE, int integers[], int rank, int lowerBo
 	fclose(outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
-	//Change sizeAssinged to Each
 	
-//	printf("Lower Bound: %d, Upper Bound: %d, from rank: %d",lowerBound, upperBound, rank);	
 	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);
 		
 
 
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
-void verifyFile(char filename[], int integers[], int rank, int lowerBound, int upperBound,int SIZE, int numProc){
+void verifyFile(char filename[], uint64_t integers[], int rank, uint64_t lowerBound, uint64_t upperBound, uint64_t SIZE, int numProc){
 	double start, end;
 
 	Timing timerOfProcesses;
@@ -213,8 +203,8 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.open = end - start;
 
-	int sizeAssignedToEachRank;
-	int extraWork = SIZE % numProc;
+	uint64_t sizeAssignedToEachRank;
+	uint64_t extraWork = SIZE % numProc;
 	if(rank < extraWork){
 		sizeAssignedToEachRank = (SIZE / numProc) + 1;
 	}else{
@@ -223,13 +213,13 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 
 
 	start = MPI_Wtime();//Start Timing
-	fread(integers, sizeof(int), sizeAssignedToEachRank, infile);
+	fread(integers, sizeof(uint64_t), sizeAssignedToEachRank, infile);
 
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 			
 	start = MPI_Wtime();// Start Timing
-	int i;
+	uint64_t i;
 	for( i = 0; i < sizeAssignedToEachRank; i++){
 		if(integers[i] != (lowerBound + i)){
 			end = MPI_Wtime();// End Timing if files not same
@@ -258,7 +248,6 @@ void verifyFile(char filename[], int integers[], int rank, int lowerBound, int u
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
-	//printf("\nThe files are equivalent!!\n");
 	printVerifyFile(&timerOfProcesses, rank);
 	}	
 
