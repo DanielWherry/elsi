@@ -4,8 +4,8 @@
 #PBS -N striping-benchmark
 #PBS -M wherrydh@ornl.gov
 #PBS -m e b
-#PBS -l walltime=0:10:00,nodes=100
+#PBS -l walltime=0:10:00,nodes=10
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 100 -N 1 ./striping-benchmark.titan.exe -n 2000000000 -c integer
+aprun -n 160  ./striping-benchmark.titan.exe -n 2000000000 -v integer
