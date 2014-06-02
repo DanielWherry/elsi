@@ -1,11 +1,11 @@
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pyplot
 import numpy as np
 from optparse import OptionParser
 import json
-import os
 from pylab import *
+
 
 parser = OptionParser()
 
@@ -29,7 +29,7 @@ try:
          dict = json.loads( line )	
          listOfDictionaries.append(dict)
 except ValueError:
-	print ""	 	 
+	thisDoesntDoAnything = 10	 	 
     
 f.close()
 
@@ -50,51 +50,51 @@ for x in sortedDictionaryList:
    choice = 2
 
 figure(0)
-plt.plot(rank,open,'blue',label="Open Time")
-plt.title('Timing Report')
-plt.xlabel('Rank ID')
-plt.ylabel( 'Time(seconds)')
-plt.legend()
-plt.savefig('OpenTime.png')
+pyplot.plot(rank,open,'blue',label="Open Time")
+pyplot.title('Timing Report')
+pyplot.xlabel('Rank ID')
+pyplot.ylabel( 'Time(seconds)')
+pyplot.legend()
+pyplot.savefig('OpenTime.png')
 
 figure(1)
-plt.plot(rank,close, 'green', label = 'Close Time')
-plt.title('Timing Report')
-plt.xlabel('Rank ID')
-plt.ylabel( 'Time(seconds)')
-plt.legend()
-plt.savefig('CloseTime.png')
+pyplot.plot(rank,close, 'green', label = 'Close Time')
+pyplot.title('Timing Report')
+pyplot.xlabel('Rank ID')
+pyplot.ylabel( 'Time(seconds)')
+pyplot.legend()
+pyplot.savefig('CloseTime.png')
 
 if choice == 1:
   figure(2)
-  plt.plot(rank,read, 'purple', label = 'Read Time')
-  plt.title('Timing Report')
-  plt.xlabel('Rank ID')
-  plt.ylabel( 'Time(seconds)')
-  plt.legend()
-  plt.savefig('ReadTime.png')
+  pyplot.plot(rank,read, 'purple', label = 'Read Time')
+  pyplot.title('Timing Report')
+  pyplot.xlabel('Rank ID')
+  pyplot.ylabel( 'Time(seconds)')
+  pyplot.legend()
+  pyplot.savefig('ReadTime.png')
  
   figure(3)
-  plt.plot(rank,verify, 'brown', label = 'Verify Time')
-  plt.title('Timing Report')
-  plt.xlabel('Rank ID')
-  plt.ylabel( 'Time(seconds)')
-  plt.legend()
-  plt.savefig('VerifyTime.png')
+  pyplot.plot(rank,verify, 'brown', label = 'Verify Time')
+  pyplot.title('Timing Report')
+  pyplot.xlabel('Rank ID')
+  pyplot.ylabel( 'Time(seconds)')
+  pyplot.legend()
+  pyplot.savefig('VerifyTime.png')
 
 if choice == 2:
   figure(4)
-  plt.plot(rank,generate,'red', label="Generate Time")
-  plt.title('Timing Report')
-  plt.xlabel('Rank ID')
-  plt.ylabel( 'Time(seconds)')
-  plt.legend()
-  plt.savefig('GenerateTime.png')
+  pyplot.plot(rank,generate,'red', label="Generate Time")
+  pyplot.title('Timing Report')
+  pyplot.xlabel('Rank ID')
+  pyplot.ylabel( 'Time(seconds)')
+  pyplot.legend()
+  pyplot.savefig('GenerateTime.png')
  
   figure(5)
-  plt.plot(rank,write,'orange', label="Write Time")
-  plt.title('Timing Report')
-  plt.xlabel('Rank ID')
-  plt.ylabel( 'Time(seconds)')
-  plt.legend()
-  plt.savefig('WriteTime.png')
+  pyplot.plot(rank,write,'orange', label="Write Time")
+  pyplot.title('Timing Report')
+  pyplot.xlabel('Rank ID')
+  pyplot.ylabel( 'Time(seconds)')
+  pyplot.legend()
+  pyplot.savefig('WriteTime.png')
