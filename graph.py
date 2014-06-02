@@ -6,7 +6,6 @@ from optparse import OptionParser
 import json
 from pylab import *
 
-
 parser = OptionParser()
 
 parser.add_option("-f", "--file", action="store", type="string", dest="filename")
@@ -98,3 +97,13 @@ if choice == 2:
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('WriteTime.png')
+
+
+this = open('stripingBenchmarkResults.html', 'w')
+message = """<html>
+<head></head>
+<body><p>What's Up Errybody!</p></body>
+</html>"""
+this.write(message)
+this.close()
+
