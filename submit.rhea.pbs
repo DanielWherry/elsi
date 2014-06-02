@@ -6,4 +6,4 @@
   #PBS -l walltime=0:10:00,nodes=2
 
   cd $MEMBERWORK/stf007
-  mpirun -n 32 ./striping-benchmark.rhea.exe -n 500MB -c integer
+  mpirun -n 32 ./striping-benchmark.rhea.exe -n 500MB -v integer
