@@ -1,10 +1,10 @@
-striping-benchmark.mac.exe: intArrayORNL.c
-	mpicc -o striping-benchmark.mac.exe intArrayORNL.c
+striping-benchmark.mac.exe: main.c
+	mpicc -o striping-benchmark.mac.exe main.c
 
-striping-benchmark.rhea.exe: intArrayORNL.c
-	mpicc -o striping-benchmark.rhea.exe intArrayORNL.c
+striping-benchmark.rhea.exe: main.c
+	mpicc -o striping-benchmark.rhea.exe main.c
 	cp striping-benchmark.rhea.exe $(MEMBERWORK)/stf007
 
-striping-benchmark.titan.exe: intArrayORNL.c
-	cc -o striping-benchmark.titan.exe intArrayORNL.c
+striping-benchmark.titan.exe: main.c
+	cc -o striping-benchmark.titan.exe main.c
 	cp striping-benchmark.titan.exe $(MEMBERWORK)/stf007

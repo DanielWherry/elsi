@@ -1,0 +1,9 @@
+ #!/bin/bash
+  #PBS -A stf007
+#PBS -M wey@ornl.gov
+#PBS -m e
+  #PBS -N striping-rhea
+  #PBS -l walltime=0:10:00,nodes=2
+
+  cd $MEMBERWORK/stf007
+  mpirun -n 32 ./striping-benchmark.rhea.exe -n 500MB -c integer
