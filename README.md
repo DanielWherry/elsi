@@ -19,8 +19,11 @@ Tool to mimic I/O patterns for Filesystem Benchmarking
 
 ## Reporting
 
-With each goal, collect performance metric sby varying:
+With each goal, collect performance metrics by varying:
 
 * Filesizes
 * Stripe counts
 * Job sizes
+
+## Usage
+
