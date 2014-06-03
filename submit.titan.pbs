@@ -1,11 +1,14 @@
 #!/bin/bash
 #    Begin PBS directives
 #PBS -A stf007
-#PBS -N striping-benchmark
+#PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
 #PBS -l walltime=0:10:00,nodes=100
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 100 -N 1  ./striping-benchmark.titan.exe -n 1TB -c integer
+aprun -n 100 -N 1  ./striping-benchmark.titan.exe -n 1GB -c integer
+cd $PBS_O_WORKDIR
+module load python_matplotlib
+python graph.py -f striping-benchmark.o*

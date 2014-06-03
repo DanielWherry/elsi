@@ -6,16 +6,17 @@ from optparse import OptionParser
 import json
 from pylab import *
 
+
 def html(message):
 	this = open('stripingBenchmarkResults.html', 'w')
 	finalMessage = """<html>
-	<head>Report on stuff</head>
+	<head><title>This is a report</title></head>
 	<body>
-	<p align="center"> <img src ="OpenTime.png" alt = "It's closing time...">
-	This graph displays the time it took for each rank to open a file.
-	<img src ="CloseTime.png" alt = "It's closing time...">
-	This graph displays the time it took for each rank to close a file.
-	%s</p>
+	<p align="center"> <img src ="OpenTime.png" alt = "It's closing time..."align=middle>
+	<font size="5">This graph displays the time it took for each rank to open a file.</font></p>
+	<p align="center"><img src ="CloseTime.png" alt = "It's closing time..."align=middle>
+	<font size="5">This graph displays the time it took for each rank to close a file.</font></p>
+	%s
 	</body>
 	</html>""" % message
 	this.write(finalMessage)
@@ -49,6 +50,8 @@ f.close()
 
 sortedDictionaryList = sorted(listOfDictionaries, key=lambda k: k['rank'])
 
+choice = "We don't know yet"
+
 for x in sortedDictionaryList:
 
  rank.append(x['rank'])
@@ -57,11 +60,11 @@ for x in sortedDictionaryList:
  if "Read Time" in x:
    verify.append(x['Verify Time'])
    read.append(x['Read Time']) 
-   choice = 1
+   choice = "The file is being verified"
  elif "Generation Time" in x:
    generate.append(x['Generation Time'])
    write.append(x['Write Time'])
-   choice = 2
+   choice = "The file is being created"
 
 
 figure(0)
@@ -80,7 +83,7 @@ pyplot.ylabel( 'Time(seconds)')
 pyplot.legend()
 pyplot.savefig('CloseTime.png')
 
-if choice == 1:
+if choice == "The file is being verified":
   figure(2)
   pyplot.scatter(rank,read, label = 'Read Time')
   pyplot.title('Timing Report')
@@ -88,7 +91,7 @@ if choice == 1:
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('ReadTime.png')
- 
+
   figure(3)
   pyplot.scatter(rank,verify, label = 'Verify Time')
   pyplot.title('Timing Report')
@@ -96,13 +99,13 @@ if choice == 1:
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('VerifyTime.png')
-  message1 = """<img src ="VerifyTime.png" alt = "It's closing time...">
-  This graph displays the time it took for each rank to verify a file.
-  <img src ="ReadTime.png" alt = "It's closing time...">
-  This graph displays the time it took for each rank to read a file."""
+  message1 = """<p align="center"><img src ="VerifyTime.png" alt = "It's closing time..."align=middle>
+  <font size="5">This graph displays the time it took for each rank to verify a file.</font></p>
+  <p align="center"><img src ="ReadTime.png" alt = "It's closing time..."align=middle>
+  <font size="5">This graph displays the time it took for each rank to read a file.</font></p>"""
   html(message1)
 
-if choice == 2:
+if choice == "The file is being created":
   figure(4)
   pyplot.scatter(rank,generate, label="Generate Time")
   pyplot.title('Timing Report')
@@ -110,7 +113,7 @@ if choice == 2:
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('GenerateTime.png')
- 
+
   figure(5)
   pyplot.scatter(rank,write, label="Write Time")
   pyplot.title('Timing Report')
@@ -118,9 +121,9 @@ if choice == 2:
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('WriteTime.png')
-  message2 = """<img src ="GenerateTime.png" alt = "It's closing time...">
-  This graph displays the time it took for each rank to generate an array to make the file.
-  <img src ="WriteTime.png" alt = "It's closing time...">
-  This graph displays the time it took for each rank to write a file."""
+  message2 = """<p align ="center"><img src ="GenerateTime.png" alt = "It's closing time...">
+  <font size="5">This graph displays the time it took for each rank to generate an array to make the file.</font></p>
+ <p align="center"><img src ="WriteTime.png" alt = "It's closing time...">
+  <font size="5">This graph displays the time it took for each rank to write a file.</font></p>"""
   html(message2)
 
