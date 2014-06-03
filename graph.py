@@ -121,9 +121,9 @@ if choice == "The file is being created":
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('WriteTime.png')
-  message2 = """<p align ="center"><img src ="GenerateTime.png" alt = "It's closing time...">
+  message2 = """<p align ="center"><img src ="GenerateTime.png" alt = "It's closing time..."align=middle>
   <font size="5">This graph displays the time it took for each rank to generate an array to make the file.</font></p>
- <p align="center"><img src ="WriteTime.png" alt = "It's closing time...">
+ <p align="center"><img src ="WriteTime.png" alt = "It's closing time..."align=middle>
   <font size="5">This graph displays the time it took for each rank to write a file.</font></p>"""
   html(message2)
 

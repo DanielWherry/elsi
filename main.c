@@ -57,7 +57,6 @@ int main(int argc, char ** argv){
 		switch(opt){
 			case 'n' : 
 
-				//SIZE = atoi(optarg);
                                 SIZE = setSize(optarg);
 				break;
 
@@ -162,14 +161,15 @@ void setBoundsForRanks(int rank, int numProc, unsigned long long int arraySize, 
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(Timing* t, unsigned long long int size, int rank){
 
-	printf("{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f, \"File Size\": %d}\n",rank, t->open, t->array, t->readOrWrite, t->close );
+
+	printf( "{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f}\n"/*, \"File Size\": %d}\n"*/,rank, t->open, t->array, t->readOrWrite, t->close );
 
 }
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(Timing* t, int rank){
+	
 
-	printf("{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f, \"File Size\": %d}\n",rank, t->open, t->array, t->readOrWrite, t->close);
-
+	printf( "{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f}\n"/*, \"File Size\": %d}\n"*/,rank, t->open, t->array, t->readOrWrite, t->close);
 
 }
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 

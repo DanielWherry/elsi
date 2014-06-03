@@ -1,11 +1,14 @@
- #!/bin/bash
-  #PBS -A stf007
+#!/bin/bash
+#PBS -A stf007
 #PBS -M wey@ornl.gov
 #PBS -m e
-  #PBS -N striping-rhea
-  #PBS -l walltime=0:10:00,nodes=2
-
-  cd $MEMBERWORK/stf007
-  mpirun -n 32 ./striping-benchmark.rhea.exe -n 1GB -v integer
-  cd $PBS_O_WORKDIR
-  python graph.py -f striping-rhea.o*
+#PBS -N striping-rhea
+#PBS -l walltime=0:10:00,nodes=1
+# End PBS directives and begin shell commands
+cd $MEMBERWORK/stf007
+mpirun -n 5 ./striping-benchmark.rhea.exe -n 1GB -v integer > striping-rhea.$PBS_JOBID.txt
+mv $MEMBERWORK/stf007/striping-rhea.$PBS_JOBID.txt $PBS_O_WORKDIR
+cd $PBS_O_WORKDIR
+source $MODULESHOME/init/bash
+module load python_matplotlib
+python graph.py -f striping-rhea.$PBS_JOBID.txt
