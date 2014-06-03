@@ -6,7 +6,7 @@
 #PBS -l walltime=0:10:00,nodes=1
 # End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-mpirun -n 5 ./striping-benchmark.rhea.exe -n 1GB -v integer > striping-rhea.$PBS_JOBID.txt
+mpirun -n 5 ./striping-benchmark.rhea.exe -n 1GB -c integer > striping-rhea.$PBS_JOBID.txt
 mv $MEMBERWORK/stf007/striping-rhea.$PBS_JOBID.txt $PBS_O_WORKDIR
 cd $PBS_O_WORKDIR
 source $MODULESHOME/init/bash
