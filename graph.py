@@ -7,18 +7,20 @@ import json
 from pylab import *
 
 
-def html(message):
+def html(message, openTimeMean, closeTimeMean):
 	this = open('stripingBenchmarkResults.html', 'w')
 	finalMessage = """<html>
 	<head><title>This is a report</title></head>
 	<body>
-	<p align="center"> <img src ="OpenTime.png" alt = "It's closing time..."align=middle>
-	<font size="5">This graph displays the time it took for each rank to open a file.</font></p>
-	<p align="center"><img src ="CloseTime.png" alt = "It's closing time..."align=middle>
-	<font size="5">This graph displays the time it took for each rank to close a file.</font></p>
-	%s
+	<table><tr>
+	<td><p align="center"> <img src ="OpenTime.png" alt = "It's closing time..."align=middle></td>
+	<td><font size="5">This graph displays the time it took for each rank to open a file. The average time for opening a file was %(openTime)f seconds.</font></p></td></tr>
+	<tr><td><p align="center"><img src ="CloseTime.png" alt = "It's closing time..."align=middle></td>
+	<td><font size="5">This graph displays the time it took for each rank to close a file.The average time for closing a file was %(closeTime)f seconds.</font></p></td></tr>
+	%(otherMessage)s
+	</table>
 	</body>
-	</html>""" % message
+	</html>""" %{"otherMessage":message, "openTime":openTimeMean, "closeTime":closeTimeMean}
 	this.write(finalMessage)
 	this.close()
 
@@ -50,7 +52,6 @@ f.close()
 
 sortedDictionaryList = sorted(listOfDictionaries, key=lambda k: k['rank'])
 
-choice = "We don't know yet"
 
 for x in sortedDictionaryList:
 
@@ -65,6 +66,9 @@ for x in sortedDictionaryList:
    generate.append(x['Generation Time'])
    write.append(x['Write Time'])
    choice = "The file is being created"
+
+openTimeMean = np.mean(openT)   
+closeTimeMean = np.mean(close)
 
 
 figure(0)
@@ -84,6 +88,7 @@ pyplot.legend()
 pyplot.savefig('CloseTime.png')
 
 if choice == "The file is being verified":
+  readTimeMean = np.mean(read)
   figure(2)
   pyplot.scatter(rank,read, label = 'Read Time')
   pyplot.title('Timing Report')
@@ -91,7 +96,8 @@ if choice == "The file is being verified":
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('ReadTime.png')
-
+  
+  verifyTimeMean = np.mean(verify)
   figure(3)
   pyplot.scatter(rank,verify, label = 'Verify Time')
   pyplot.title('Timing Report')
@@ -99,13 +105,14 @@ if choice == "The file is being verified":
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('VerifyTime.png')
-  message1 = """<p align="center"><img src ="VerifyTime.png" alt = "It's closing time..."align=middle>
-  <font size="5">This graph displays the time it took for each rank to verify a file.</font></p>
-  <p align="center"><img src ="ReadTime.png" alt = "It's closing time..."align=middle>
-  <font size="5">This graph displays the time it took for each rank to read a file.</font></p>"""
-  html(message1)
+  message1 = """<tr><td><img src ="VerifyTime.png" alt = "It's closing time..."align=middle></td>
+<td><font size="5">This graph displays the time it took for each rank to verify a file.The average time it took for a rank to verify a file was %(verifyTime)f seconds.</font></td></tr>
+  <tr><td><img src ="ReadTime.png" alt = "It's closing time..."align=middle></td>
+<td><font size="5">This graph displays the time it took for each rank to read a file.The average time it took for a rank to read a file was %(readTime)f seconds.</font></td></tr>""" % {"verifyTime": verifyTimeMean, "readTime":readTimeMean}
+  html(message1, openTimeMean, closeTimeMean)
 
 if choice == "The file is being created":
+  generateTimeMean = np.mean(generate)
   figure(4)
   pyplot.scatter(rank,generate, label="Generate Time")
   pyplot.title('Timing Report')
@@ -114,6 +121,7 @@ if choice == "The file is being created":
   pyplot.legend()
   pyplot.savefig('GenerateTime.png')
 
+  writeTimeMean = np.mean(write)
   figure(5)
   pyplot.scatter(rank,write, label="Write Time")
   pyplot.title('Timing Report')
@@ -121,9 +129,9 @@ if choice == "The file is being created":
   pyplot.ylabel( 'Time(seconds)')
   pyplot.legend()
   pyplot.savefig('WriteTime.png')
-  message2 = """<p align ="center"><img src ="GenerateTime.png" alt = "It's closing time..."align=middle>
-  <font size="5">This graph displays the time it took for each rank to generate an array to make the file.</font></p>
- <p align="center"><img src ="WriteTime.png" alt = "It's closing time..."align=middle>
-  <font size="5">This graph displays the time it took for each rank to write a file.</font></p>"""
-  html(message2)
+  message2 = """<tr><td><img src ="GenerateTime.png" alt = "It's closing time..."align="left" /></td>
+	<td><font size="5">This graph displays the time it took for  each rank to generate an array to make the file.The average time it took for each rank  to generate an array for a file was %(generateTime)f seconds.</font></td></tr>
+<tr><td><p align = "center"><img src ="WriteTime.png" alt = "It's closing time..."align=left /></td>
+<td><font size="5">This graph displays the time it took for each rank to write a file. The average time it took for each rank to  write to a file was %(writeTime)f seconds.</font></td></tr>""" %{"generateTime":generateTimeMean, "writeTime":writeTimeMean}
+  html(message2, openTimeMean, closeTimeMean)
 

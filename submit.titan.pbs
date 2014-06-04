@@ -4,11 +4,11 @@
 #PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:10:00,nodes=50
+#PBS -l walltime=0:10:00,nodes=10
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 50 -N 1  ./striping-benchmark.titan.exe -n 1GB -c integer > striping-titan.$PBS_JOBID.txt
+aprun -n 10 -N 1  ./striping-benchmark.titan.exe -n 1GB -v integer > striping-titan.$PBS_JOBID.txt
 mv $MEMBERWORK/stf007/striping-titan.$PBS_JOBID.txt $PBS_O_WORKDIR 
 cd $PBS_O_WORKDIR
 source $MODULESHOME/init/bash
