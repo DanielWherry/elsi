@@ -42,7 +42,7 @@ int main(int argc, char ** argv){
 	Choice createOrVerify = nothing;
 
 	struct option long_options[] = {
-		{"numElements", required_argument, 0, 'n' },
+		{"size", required_argument, 0, 's' },
         	{"create", required_argument, 0, 'c' },
 		{"verify", required_argument, 0, 'v' },
 		{NULL,0,0,0}
@@ -53,9 +53,9 @@ int main(int argc, char ** argv){
 	int long_index = 0;
 
 
-	while(( opt = getopt_long(argc, argv,"n:c:v:",long_options, &long_index)) != -1){
+	while(( opt = getopt_long(argc, argv,"s:c:v:",long_options, &long_index)) != -1){
 		switch(opt){
-			case 'n' : 
+			case 's' : 
 
                                 SIZE = setSize(optarg);
 				break;
