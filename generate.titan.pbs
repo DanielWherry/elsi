@@ -1,0 +1,14 @@
+#!/bin/bash
+#    Begin PBS directives
+#PBS -A stf007
+#PBS -N DoingTestsForGenerate
+#PBS -M wherrydh@ornl.gov
+#PBS -m e
+#PBS -l walltime=0:10:00,nodes=5
+#PBS -l gres=atlas1%atlas2
+#    End PBS directives and begin shell commands
+cd $MEMBERWORK/stf007
+aprun -n 80 -N 16   ./generate.exe  > generate.$PBS_JOBID.txt
+source $MODULESHOME/init/bash
+module load python_matplotlib
+python MoreGraph.py -f generate.$PBS_JOBID.txt 
