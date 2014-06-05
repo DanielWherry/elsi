@@ -12,10 +12,10 @@ typedef struct {
 	} Timing;
 
 void setBoundsForRanks(int, int, unsigned long long int, unsigned long long int*, unsigned long long int*);
-void createFile(char*, unsigned long long int, unsigned long long int*, int , unsigned long long int, unsigned long long int, int);	
-void verifyFile(char*, unsigned long long int*, int, unsigned long long int, unsigned long long int, unsigned long long int, int);
-void printCreateFile(Timing* , unsigned long long int, int);
-void printVerifyFile(Timing*, int);
+void createFile(char*, unsigned long long int, unsigned long long int*, int , unsigned long long int, unsigned long long int, int, char*);	
+void verifyFile(char*, unsigned long long int*, int, unsigned long long int, unsigned long long int, unsigned long long int, int, char*);
+void printCreateFile(Timing*, int, char*);
+void printVerifyFile(Timing*, int, char*);
 unsigned long long int setSize(char*);
 
 int main(int argc, char ** argv){
@@ -31,7 +31,8 @@ int main(int argc, char ** argv){
 	unsigned long long int SIZE = 0;
 	int opt = 0;
 
-	char filename[50]; 
+	char filename[50];
+	char filesize[50]; 
 
 	typedef enum {
 		create,
@@ -55,8 +56,9 @@ int main(int argc, char ** argv){
 
 	while(( opt = getopt_long(argc, argv,"s:c:v:",long_options, &long_index)) != -1){
 		switch(opt){
-			case 's' : 
-
+			case 's' :
+				
+				strcpy(filesize,optarg);
                                 SIZE = setSize(optarg);
 				break;
 
@@ -84,11 +86,11 @@ int main(int argc, char ** argv){
 
 		if(createOrVerify == create){
 
-			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc);
+			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc, filesize);
 
 		}else if(createOrVerify == verify){
 
-			verifyFile(filename, integers, rank, lowerBound, upperBound, SIZE, numProc);
+			verifyFile(filename, integers, rank, lowerBound, upperBound, SIZE, numProc, filesize);
 
 		}else{
 			printf("You have made a mistake!! Did you forget an option?\n");
@@ -159,21 +161,21 @@ void setBoundsForRanks(int rank, int numProc, unsigned long long int arraySize, 
 
 
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
-void printCreateFile(Timing* t, unsigned long long int size, int rank){
+void printCreateFile(Timing* t, int rank, char* fileSize){
 
 
-	printf( "{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f}\n"/*, \"File Size\": %d}\n"*/,rank, t->open, t->array, t->readOrWrite, t->close );
+	printf( "{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f,\"File Size\":\"%s\"}\n",rank, t->open, t->array, t->readOrWrite, t->close, fileSize );
 
 }
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
-void printVerifyFile(Timing* t, int rank){
+void printVerifyFile(Timing* t, int rank, char* fileSize){
 	
 
-	printf( "{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f}\n"/*, \"File Size\": %d}\n"*/,rank, t->open, t->array, t->readOrWrite, t->close);
+	printf( "{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f, \"File Size\": \"%s\"}\n",rank, t->open, t->array, t->readOrWrite, t->close, fileSize);
 
 }
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
-void createFile(char filename[], unsigned long long int SIZE, unsigned long long int integers[], int rank, unsigned long long int lowerBound, unsigned long long int upperBound, int numProc){	
+void createFile(char filename[], unsigned long long int SIZE, unsigned long long int integers[], int rank, unsigned long long int lowerBound, unsigned long long int upperBound, int numProc, char* fileSize){	
 	double start, end;
 
 	Timing timerOfProcesses;
@@ -213,13 +215,13 @@ void createFile(char filename[], unsigned long long int SIZE, unsigned long long
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
-	printCreateFile(&timerOfProcesses, sizeAssignedToEachRank, rank);
+	printCreateFile(&timerOfProcesses, rank, fileSize);
 
 
 
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
-void verifyFile(char filename[], unsigned long long int integers[], int rank, unsigned long long int lowerBound, unsigned long long int upperBound, unsigned long long int SIZE, int numProc){
+void verifyFile(char filename[], unsigned long long int integers[], int rank, unsigned long long int lowerBound, unsigned long long int upperBound, unsigned long long int SIZE, int numProc, char* fileSize){
 	double start, end;
 
 	Timing timerOfProcesses;
@@ -268,7 +270,7 @@ void verifyFile(char filename[], unsigned long long int integers[], int rank, un
 			timerOfProcesses.close = end - start;
 
 			printf("\nThe files are not the same!!\n");	
-			printVerifyFile(&timerOfProcesses, rank);	
+			printVerifyFile(&timerOfProcesses, rank, fileSize);	
 
 			result = notsame;			
 
@@ -285,7 +287,7 @@ void verifyFile(char filename[], unsigned long long int integers[], int rank, un
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
-	printVerifyFile(&timerOfProcesses, rank);
+	printVerifyFile(&timerOfProcesses, rank, fileSize);
 	}	
 
 

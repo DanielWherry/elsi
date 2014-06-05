@@ -8,9 +8,10 @@
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 10 -N 1  ./striping-benchmark.titan.exe -n 1GB -v integer > striping-titan.$PBS_JOBID.txt
+aprun -n 80 -N 8 -S 4    ./striping-benchmark.titan.exe -s 100GB -c integer > striping-titan.$PBS_JOBID.txt
 mv $MEMBERWORK/stf007/striping-titan.$PBS_JOBID.txt $PBS_O_WORKDIR 
 cd $PBS_O_WORKDIR
 source $MODULESHOME/init/bash
 module load python_matplotlib
-python graph.py -f striping-titan.$PBS_JOBID.txt 
+python graph.py -f striping-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES 
+
