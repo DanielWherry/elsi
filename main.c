@@ -23,10 +23,10 @@ int main(int argc, char ** argv){
 	int rank, numProc; 
 	unsigned long long int lowerBound, upperBound;
 
+	MPI_File outfile;	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
-
 
 	unsigned long long int SIZE = 0;
 	int opt = 0;
@@ -179,13 +179,13 @@ void createFile(char filename[], unsigned long long int SIZE, unsigned long long
 	double start, end;
 
 	Timing timerOfProcesses;
-	char str[20];
-	sprintf(str, "%d.dat", rank);
-	strcat(filename, str);
 
+	unsigned long long int Pstart = (SIZE /numProc) * rank;
+	MPI_Offset offset = sizeof(unsigned long long int) * Pstart;
+	MPI_File outfile;
+	MPI_Status status;
 	start = MPI_Wtime();// Start timing
-	FILE* outfile;
-	outfile = fopen(filename,"w");
+	MPI_File_open(MPI_COMM_WORLD, filename,MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &outfile);
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
 
@@ -206,12 +206,12 @@ void createFile(char filename[], unsigned long long int SIZE, unsigned long long
 	timerOfProcesses.array = end - start;
 
 	start = MPI_Wtime();// Start Timing
-	fwrite(integers, sizeof(unsigned long long int), sizeAssignedToEachRank, outfile);
+	MPI_File_write(outfile, integers, SIZE/numProc, MPI_LONG_LONG_INT, &status);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 
 	start = MPI_Wtime();//Start Timing
-	fclose(outfile);
+	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
