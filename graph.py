@@ -76,10 +76,10 @@ for x in sortedDictionaryList:
    write.append(x['Write Time'])
    choice = "The file is being created"
 
-completeFileSizeInString = re.sub('[MBKGT]','',fileSize[0])
+completeFileSizeInString = re.sub('[MKGTB]','',fileSize[0])
 completeFileSizeInInt = int(completeFileSizeInString)
 fileSizeEnding = re.sub('[0123456789]','',fileSize[1])
-rankFileSize = completeFileSizeInInt / len(fileSize)
+rankFileSize = float(completeFileSizeInInt) / len(fileSize)
 finalFileSize = str(rankFileSize) + fileSizeEnding
 
 openTimeMean = np.mean(openT) 

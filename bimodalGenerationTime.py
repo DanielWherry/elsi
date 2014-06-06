@@ -41,7 +41,7 @@ pyplot.title('Timing Report')
 pyplot.xlabel('Rank ID')
 pyplot.ylabel( 'Time(seconds)')
 pyplot.legend()
-pyplot.savefig('AwesomeGenerate.png')
+pyplot.savefig('bimodalGenerate.png')
 
 
 
