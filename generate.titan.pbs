@@ -8,7 +8,7 @@
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 40 -N 8   ./generate.exe  > generate.$PBS_JOBID.txt
+aprun -n 45 -N 9   ./generate.exe  > generate.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
 python bimodalGenerationTime.py -f generate.$PBS_JOBID.txt 
