@@ -23,7 +23,6 @@ int main(int argc, char ** argv){
 	int rank, numProc; 
 	unsigned long long int lowerBound, upperBound;
 
-	MPI_File outfile;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
@@ -135,7 +134,7 @@ unsigned long long int setSize(char* commandLineArgument){
 		size = atoi(sizeInString);
 		sizeOfArray = size / 8;
 	}
-	
+
 
 	return sizeOfArray;
 }
@@ -177,21 +176,7 @@ void printVerifyFile(Timing* t, int rank, char* fileSize){
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
 void createFile(char filename[], unsigned long long int SIZE, unsigned long long int integers[], int rank, unsigned long long int lowerBound, unsigned long long int upperBound, int numProc, char* fileSize){	
 	double start, end;
-
-	Timing timerOfProcesses;
-	char str[20];
-	sprintf(str, "%d.dat", rank);
-	strcat(filename, str);
-
-	unsigned long long int Pstart = (SIZE /numProc) * rank;
-	MPI_Offset offset = sizeof(unsigned long long int) * Pstart;
-	MPI_File outfile;
-	MPI_Status status;
-	start = MPI_Wtime();// Start timing
-	MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &outfile);
-	end = MPI_Wtime();// End timing
-	timerOfProcesses.open = end - start;
-
+	
 	unsigned long long int sizeAssignedToEachRank;
 	unsigned long long int extraWork = SIZE % numProc;
 	if(rank < extraWork){
@@ -200,6 +185,16 @@ void createFile(char filename[], unsigned long long int SIZE, unsigned long long
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
 
+	char str[20];
+	sprintf(str, "%d.dat", rank);
+	strcat(filename, str);
+	
+	Timing timerOfProcesses;
+
+	MPI_File outfile;
+	MPI_Status status;
+	MPI_Offset offset = sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank;
+	
 	start = MPI_Wtime();// Start Timing
 	unsigned long long int i;
 	for( i = 0; i < sizeAssignedToEachRank; i++){
@@ -208,8 +203,15 @@ void createFile(char filename[], unsigned long long int SIZE, unsigned long long
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 
+	start = MPI_Wtime();// Start timing
+	MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &outfile);
+	end = MPI_Wtime();// End timing
+	timerOfProcesses.open = end - start;
+
+	MPI_File_set_view(outfile, offset, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+
 	start = MPI_Wtime();// Start Timing
-	MPI_File_write_shared(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	MPI_File_write(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 
