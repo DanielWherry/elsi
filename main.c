@@ -195,9 +195,13 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	MPI_Status status;
 	MPI_Offset disp = rank * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank;
 
+	MPI_File_delete(filename, MPI_INFO_NULL);
+
 	start = MPI_Wtime();// Start timing
 	err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
-	//if(err){printf("%d\n", err);MPI_Abort(MPI_COMM_WORLD, 911);}
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD, 1);
+	}
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
 	
@@ -210,14 +214,15 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	timerOfProcesses.array = end - start;
 
 	err = MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-//if(err){MPI_Abort(MPI_COMM_WORLD, 911);}
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD, 2);
+	}
 
 	
 	start = MPI_Wtime();// Start Timing
 	err = MPI_File_write_ordered(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
 	if(err){
-		printf("Error in write\n");
-		MPI_Abort(MPI_COMM_WORLD, 911);
+		MPI_Abort(MPI_COMM_WORLD, 3);
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
