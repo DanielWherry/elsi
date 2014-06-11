@@ -197,7 +197,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 
 	start = MPI_Wtime();// Start timing
 	err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
-	if(err){printf("%d\n", err);MPI_Abort(MPI_COMM_WORLD, 911);}
+	//if(err){printf("%d\n", err);MPI_Abort(MPI_COMM_WORLD, 911);}
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
 	
@@ -214,11 +214,11 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 
 	
 	start = MPI_Wtime();// Start Timing
-	err = MPI_File_write_ordered(outfile, integers, disp, MPI_LONG_LONG_INT, &status);
-/*	if(err){
+	err = MPI_File_write_ordered(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	if(err){
 		printf("Error in write\n");
 		MPI_Abort(MPI_COMM_WORLD, 911);
-	}*/
+	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 	
@@ -226,8 +226,6 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
-
-	printf("Displacement: %d\n", disp);
 
 
 	printCreateFile(&timerOfProcesses, rank, fileSize);
