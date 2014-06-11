@@ -115,7 +115,7 @@ long long int setSize(char* commandLineArgument){
 		sizeInString = strtok(commandLineArgument, "M");
 		size = atoi(sizeInString);
 		size *= 1048576;// Right hand side is #bytes in Megabyte
-		sizeOfArray = size / 8;
+		sizeOfArray = size / 8; //////
 	}
 	else if(strchr(commandLineArgument, 'G') != NULL){
 		sizeInString = strtok(commandLineArgument, "G");
@@ -176,7 +176,9 @@ void printVerifyFile(Timing* t, int rank, char* fileSize){
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
 void createFile(char filename[], long long int SIZE, long long int integers[], int rank, long long int lowerBound, long long int upperBound, int numProc, char* fileSize){	
 	double start, end;
-	
+	Timing timerOfProcesses;
+	int err=0;	
+
 	long long int sizeAssignedToEachRank;
 	long long int extraWork = SIZE % numProc;
 	if(rank < extraWork){
@@ -184,44 +186,49 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	}else{
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
-
+	
 	char str[20];
-	sprintf(str, "%d.dat", rank);
+	sprintf(str, ".dat");
 	strcat(filename, str);
 	
-	Timing timerOfProcesses;
+	MPI_File outfile;
+	MPI_Status status;
+	MPI_Offset disp = rank * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank;
 
+	start = MPI_Wtime();// Start timing
+	err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
+	if(err){printf("%d\n", err);MPI_Abort(MPI_COMM_WORLD, 911);}
+	end = MPI_Wtime();// End timing
+	timerOfProcesses.open = end - start;
 	
 	start = MPI_Wtime();// Start Timing
 	long long int i;
 	for( i = 0; i < sizeAssignedToEachRank; i++){
 		integers[i] = lowerBound + i;
-		printf("%lld\n", integers[i]);
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
+
+	err = MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+//if(err){MPI_Abort(MPI_COMM_WORLD, 911);}
+
 	
-	
-	MPI_File outfile;
-	MPI_Status status;
-	MPI_Offset offset = rank * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank;
-
-	start = MPI_Wtime();// Start timing
-	MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &outfile);
-	end = MPI_Wtime();// End timing
-	timerOfProcesses.open = end - start;
-
-	MPI_File_set_view(outfile, offset, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-
 	start = MPI_Wtime();// Start Timing
-	MPI_File_write_ordered(outfile, integers, offset, MPI_LONG_LONG_INT, &status);
+	err = MPI_File_write_ordered(outfile, integers, disp, MPI_LONG_LONG_INT, &status);
+/*	if(err){
+		printf("Error in write\n");
+		MPI_Abort(MPI_COMM_WORLD, 911);
+	}*/
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
-
+	
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
+
+	printf("Displacement: %d\n", disp);
+
 
 	printCreateFile(&timerOfProcesses, rank, fileSize);
 

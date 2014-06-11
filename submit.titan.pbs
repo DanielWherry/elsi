@@ -4,7 +4,7 @@
 #PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:10:00,nodes=6
+#PBS -l walltime=0:02:00,nodes=6
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
