@@ -4,11 +4,11 @@
 #PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:10:00,nodes=5
+#PBS -l walltime=2:00:00,nodes=200
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 80 -N 16 ./striping-benchmark.titan.exe -s 500MB -v integer > $PBS_O_WORKDIR/striping-titan.$PBS_JOBID.txt
+aprun -n 3200 -N 16 ./striping-benchmark.titan.exe -s 1TB -v integer > $PBS_O_WORKDIR/striping-titan.$PBS_JOBID.txt
 cd $PBS_O_WORKDIR
 source $MODULESHOME/init/bash
 module load python_matplotlib

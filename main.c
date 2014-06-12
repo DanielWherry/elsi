@@ -24,6 +24,7 @@ int main(int argc, char ** argv){
 	long long int lowerBound, upperBound;
 
 	MPI_Init(&argc, &argv);
+	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 
@@ -193,7 +194,6 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	
 	MPI_File outfile;
 	MPI_Status status;
-	MPI_Offset disp =  sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
 
 	MPI_File_delete(filename, MPI_INFO_NULL);
 
@@ -213,19 +213,14 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 
-	err = MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-	if(err){
-		MPI_Abort(MPI_COMM_WORLD, 2);
-	}
-
 	
 	start = MPI_Wtime();// Start Timing
 	err = MPI_File_write_ordered(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
 	if(err){
-		MPI_Abort(MPI_COMM_WORLD, 3);
+		MPI_Abort(MPI_COMM_WORLD, 2);
 	}
-	//end = MPI_Wtime();// End Timing
-	timerOfProcesses.readOrWrite = MPI_Wtime() - start;
+	end = MPI_Wtime();// End Timing
+	timerOfProcesses.readOrWrite = end - start;
 	
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
@@ -275,8 +270,8 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.open = end - start;
-
-	MPI_File_set_view(infile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);	
+	
+	MPI_File_seek_shared(infile, 0, MPI_SEEK_SET);
 
 	start = MPI_Wtime();//Start Timing
 	err = MPI_File_read_ordered(infile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
