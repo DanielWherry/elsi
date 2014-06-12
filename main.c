@@ -193,7 +193,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	
 	MPI_File outfile;
 	MPI_Status status;
-	MPI_Offset disp = rank * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank;
+	MPI_Offset disp =  sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
 
 	MPI_File_delete(filename, MPI_INFO_NULL);
 
@@ -224,8 +224,8 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	if(err){
 		MPI_Abort(MPI_COMM_WORLD, 3);
 	}
-	end = MPI_Wtime();// End Timing
-	timerOfProcesses.readOrWrite = end - start;
+	//end = MPI_Wtime();// End Timing
+	timerOfProcesses.readOrWrite = MPI_Wtime() - start;
 	
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
@@ -241,25 +241,9 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
 void verifyFile(char filename[], long long int integers[], int rank, long long int lowerBound, long long int upperBound, long long int SIZE, int numProc, char* fileSize){
 	double start, end;
-
+	int err = 0;
 	Timing timerOfProcesses;
-
-	typedef enum{
-		same,
-		notsame
-	} resultOfVerifyTest;
-
-	resultOfVerifyTest result = same;
-	char str[20];
-	sprintf(str, "%d.dat", rank);
-	strcat(filename, str);
-
-	start = MPI_Wtime();//Start Timing
-	FILE *infile;	
-	infile = fopen(filename,"r");
-	end = MPI_Wtime();// End Timing
-	timerOfProcesses.open = end - start;
-
+	
 	long long int sizeAssignedToEachRank;
 	long long int extraWork = SIZE % numProc;
 	if(rank < extraWork){
@@ -268,10 +252,37 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 		sizeAssignedToEachRank = SIZE / numProc;
 	}
 
+	typedef enum{
+		same,
+		notsame
+	} resultOfVerifyTest;
+
+	resultOfVerifyTest result = same;
+	
+	char str[20];
+	sprintf(str, ".dat");
+	strcat(filename, str);
+
+	MPI_File infile;
+	MPI_Status status;
+	MPI_Offset disp =  sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
+
+	
+	start = MPI_Wtime();//Start Timing
+	err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_RDONLY, MPI_INFO_NULL, &infile);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD, 4);
+	}
+	end = MPI_Wtime();// End Timing
+	timerOfProcesses.open = end - start;
+
+	MPI_File_set_view(infile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);	
 
 	start = MPI_Wtime();//Start Timing
-	fread(integers, sizeof(long long int), sizeAssignedToEachRank, infile);
-
+	err = MPI_File_read_ordered(infile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD, 5);
+	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
 
@@ -283,7 +294,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 			timerOfProcesses.array = end - start;
 
 			start = MPI_Wtime();// Start timing
-			fclose(infile);
+			MPI_File_close(&infile);
 			end = MPI_Wtime();// End Timing
 			timerOfProcesses.close = end - start;
 
@@ -301,7 +312,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 	timerOfProcesses.array = end - start;
 
 	start = MPI_Wtime();// Start Timing
-	fclose(infile);
+	MPI_File_close(&infile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
