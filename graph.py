@@ -10,11 +10,16 @@ import re
 
 def html(message, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, numRanks, numberOfNodes, finalFileSize):
 
+	PBS_SCRIPT = open('submit.titan.pbs','r')
+	contentsOfScript = PBS_SCRIPT.read()
+	PBS_SCRIPT.close()
+	
+
 	ranksPerNode = numRanks / numberOfNodes
 
-	this = open('StripingBenchmarkResults.html', 'w')
+	HTML = open('StripingBenchmarkResults.html', 'w')
 	finalMessage = """<html>
-	<head><title>REPORT ON TIMING</title><h1>This run was completed using %(ranks)d ranks at %(rpNode)d ranks per node to make %(fileSize)s sized files.</h1></head>
+	<head><title>REPORT ON TIMING</title><h1>This run was completed using %(ranks)d ranks at %(rpNode)d ranks per node to make %(fileSize)s sized files. Here was the scipt submitted to run this test: </h1><h3>%(script)s</h3></head>
 	<body>
 	<table><tr>
 	<td><p align="center"> <img src ="OpenTime.png" alt = "It's closing time..."align=middle></td>
@@ -24,9 +29,9 @@ def html(message, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, numRan
 	%(otherMessage)s
 	</table>
 	</body>
-	</html>""" %{"otherMessage":message, "openTime":openTimeMean, "closeTime":closeTimeMean, "oDev":openTimeDev, "cDev":closeTimeDev, "ranks":numRanks, "rpNode":ranksPerNode, "fileSize": finalFileSize}
-	this.write(finalMessage)
-	this.close()
+	</html>""" %{"otherMessage":message, "openTime":openTimeMean, "closeTime":closeTimeMean, "oDev":openTimeDev, "cDev":closeTimeDev, "ranks":numRanks, "rpNode":ranksPerNode, "fileSize": finalFileSize,"script":contentsOfScript}
+	HTML.write(finalMessage)
+	HTML.close()
 
 parser = OptionParser()
 
@@ -163,4 +168,3 @@ if choice == "The file is being created":
 <td><font size="5">This graph displays the time it took for each rank to write a file. The average time it took for each rank to  write to a file was %(writeTime)f seconds, with a standard deviation of %(wDev)f seconds. </font></td></tr>""" %{"generateTime":generateTimeMean, "writeTime":writeTimeMean, "wDev":writeTimeDev, "genDev":generateTimeDev}
   html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize)
 
-print choice

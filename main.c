@@ -3,6 +3,7 @@
 #include <string.h>
 #include <mpi.h>
 #include <getopt.h>
+#include <omp.h>
 
 typedef struct {
 	double open;
@@ -194,7 +195,8 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	
 	MPI_File outfile;
 	MPI_Status status;
-
+	MPI_Request request;
+	MPI_Offset disp =  2 * sizeof(MPI_LONG_LONG_INT) * rank * sizeAssignedToEachRank;
 	MPI_File_delete(filename, MPI_INFO_NULL);
 
 	start = MPI_Wtime();// Start timing
@@ -204,18 +206,24 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	}
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
-	
+
+	omp_set_num_threads(16);	
 	start = MPI_Wtime();// Start Timing
 	long long int i;
-	for( i = 0; i < sizeAssignedToEachRank; i++){
-		integers[i] = lowerBound + i;
-	}
+	#pragma omp parallel for 
+		for( i = 0; i < sizeAssignedToEachRank; i++){
+			integers[i] = lowerBound + i;
+		}
+	
+	
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
-
 	
+	//MPI_File_seek(outfile, disp, MPI_SEEK_CUR);
+	MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+
 	start = MPI_Wtime();// Start Timing
-	err = MPI_File_write_ordered(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	err = MPI_File_write(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
 	if(err){
 		MPI_Abort(MPI_COMM_WORLD, 2);
 	}
@@ -260,7 +268,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 
 	MPI_File infile;
 	MPI_Status status;
-	MPI_Offset disp =  sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
+	MPI_Offset disp = 2 * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
 
 	
 	start = MPI_Wtime();//Start Timing
@@ -271,10 +279,10 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.open = end - start;
 	
-	MPI_File_seek_shared(infile, 0, MPI_SEEK_SET);
+	 MPI_File_set_view( infile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL );
 
 	start = MPI_Wtime();//Start Timing
-	err = MPI_File_read_ordered(infile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	err = MPI_File_read(infile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
 	if(err){
 		MPI_Abort(MPI_COMM_WORLD, 5);
 	}
