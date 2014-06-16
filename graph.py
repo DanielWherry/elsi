@@ -55,8 +55,8 @@ fileSize = []
 
 for line in f:
     try:
-         dict = json.loads( line )	
-         listOfDictionaries.append(dict)
+        dict = json.loads( line )	
+        listOfDictionaries.append(dict)
     except ValueError:
 	thisDoesntDoAnything = 10	 	 
     
@@ -67,19 +67,18 @@ sortedDictionaryList = sorted(listOfDictionaries, key=lambda k: k['rank'])
 choice = "This hasn't been assigned"
 
 for x in sortedDictionaryList:
-
- rank.append(x['rank'])
- openT.append(x['Open Time'])
- close.append(x['Close Time'])
- fileSize.append(x['File Size'])
- if "Read Time" in x:
-   verify.append(x['Verify Time'])
-   read.append(x['Read Time']) 
-   choice = "The file is being verified"
- elif "Generation Time" in x:
-   generate.append(x['Generation Time'])
-   write.append(x['Write Time'])
-   choice = "The file is being created"
+    rank.append(x['rank'])
+    openT.append(x['Open Time'])
+    close.append(x['Close Time'])
+    fileSize.append(x['File Size'])
+    if "Read Time" in x:
+      verify.append(x['Verify Time'])
+      read.append(x['Read Time']) 
+      choice = "The file is being verified"
+    elif "Generation Time" in x:
+      generate.append(x['Generation Time'])
+      write.append(x['Write Time'])
+      choice = "The file is being created"
 
 completeFileSizeInString = re.sub('[MKGTB]','',fileSize[0])
 completeFileSizeInInt = int(completeFileSizeInString)
@@ -113,58 +112,58 @@ pyplot.axis([rank[0], rank[-1], None, None])
 pyplot.savefig('CloseTime.png')
 
 if choice == "The file is being verified":
-  readTimeMean = np.mean(read)
-  readTimeDev = np.std(read)
-  figure(2)
-  pyplot.scatter(rank,read, label = 'Read Time')
-  pyplot.title('Timing Report')
-  pyplot.xlabel('Rank ID')
-  pyplot.ylabel( 'Time(seconds)')
-  pyplot.legend()
-  pyplot.axis([rank[0], rank[-1], None, None])
-  pyplot.savefig('ReadTime.png')
+    readTimeMean = np.mean(read)
+    readTimeDev = np.std(read)
+    figure(2)
+    pyplot.scatter(rank,read, label = 'Read Time')
+    pyplot.title('Timing Report')
+    pyplot.xlabel('Rank ID')
+    pyplot.ylabel( 'Time(seconds)')
+    pyplot.legend()
+    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.savefig('ReadTime.png')
   
-  verifyTimeMean = np.mean(verify)
-  verifyTimeDev = np.std(verify)
-  figure(3)
-  pyplot.scatter(rank,verify, label = 'Verify Time')
-  pyplot.title('Timing Report')
-  pyplot.xlabel('Rank ID')
-  pyplot.ylabel( 'Time(seconds)')
-  pyplot.legend()
-  pyplot.axis([rank[0], rank[-1], None, None])
-  pyplot.savefig('VerifyTime.png')
-  message1 = """<tr><td><img src ="VerifyTime.png" alt = "It's closing time..."align=middle></td>
+    verifyTimeMean = np.mean(verify)
+    verifyTimeDev = np.std(verify)
+    figure(3)
+    pyplot.scatter(rank,verify, label = 'Verify Time')
+    pyplot.title('Timing Report')
+    pyplot.xlabel('Rank ID')
+    pyplot.ylabel( 'Time(seconds)')
+    pyplot.legend()
+    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.savefig('VerifyTime.png')
+    message1 = """<tr><td><img src ="VerifyTime.png" alt = "It's closing time..."align=middle></td>
 <td><font size="5">This graph displays the time it took for each rank to verify a file.The average time it took for a rank to verify a file was %(verifyTime)f seconds, with a standard deviation of %(vDev)f seconds.</font></td></tr>
   <tr><td><img src ="ReadTime.png" alt = "It's closing time..."align=middle></td>
 <td><font size="5">This graph displays the time it took for each rank to read a file.The average time it took for a rank to read a file was %(readTime)f seconds, with a standard deviation of %(rDev)f seconds.</font></td></tr>""" % {"verifyTime": verifyTimeMean, "readTime":readTimeMean, "rDev":readTimeDev, "vDev":verifyTimeDev}
-  html(message1, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize)
+    html(message1, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize)
 
 if choice == "The file is being created":
-  generateTimeMean = np.mean(generate)
-  generateTimeDev = np.std(generate)
-  figure(4)
-  pyplot.scatter(rank,generate, label="Generate Time")
-  pyplot.title('Timing Report')
-  pyplot.xlabel('Rank ID')
-  pyplot.ylabel( 'Time(seconds)')
-  pyplot.legend()
-  pyplot.axis([rank[0], rank[-1], None, None])
-  pyplot.savefig('GenerateTime.png')
+    generateTimeMean = np.mean(generate)
+    generateTimeDev = np.std(generate)
+    figure(4)
+    pyplot.scatter(rank,generate, label="Generate Time")
+    pyplot.title('Timing Report')
+    pyplot.xlabel('Rank ID')
+    pyplot.ylabel( 'Time(seconds)')
+    pyplot.legend()
+    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.savefig('GenerateTime.png')
 
-  writeTimeMean = np.mean(write)
-  writeTimeDev = np.std(write)
-  figure(5)
-  pyplot.scatter(rank,write, label="Write Time")
-  pyplot.title('Timing Report')
-  pyplot.xlabel('Rank ID')
-  pyplot.ylabel( 'Time(seconds)')
-  pyplot.legend()
-  pyplot.axis([rank[0], rank[-1], None, None])
-  pyplot.savefig('WriteTime.png')
-  message2 = """<tr><td><img src ="GenerateTime.png" alt = "It's closing time..."align="left" /></td>
+    writeTimeMean = np.mean(write)
+    writeTimeDev = np.std(write)
+    figure(5)
+    pyplot.scatter(rank,write, label="Write Time")
+    pyplot.title('Timing Report')
+    pyplot.xlabel('Rank ID')
+    pyplot.ylabel( 'Time(seconds)')
+    pyplot.legend()
+    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.savefig('WriteTime.png')
+    message2 = """<tr><td><img src ="GenerateTime.png" alt = "It's closing time..."align="left" /></td>
 	<td><font size="5">This graph displays the time it took for  each rank to generate an array to make the file.The average time it took for each rank  to generate an array for a file was %(generateTime)f seconds, with a standard deviation of %(genDev)f seconds.</font></td></tr>
 <tr><td><p align = "center"><img src ="WriteTime.png" alt = "It's closing time..."align=left /></td>
 <td><font size="5">This graph displays the time it took for each rank to write a file. The average time it took for each rank to  write to a file was %(writeTime)f seconds, with a standard deviation of %(wDev)f seconds. </font></td></tr>""" %{"generateTime":generateTimeMean, "writeTime":writeTimeMean, "wDev":writeTimeDev, "genDev":generateTimeDev}
-  html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize)
+    html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize)
 
