@@ -7,13 +7,9 @@
 int main(int argc, char ** argv){
 
 
-	char* sizeInStringWrong = "500MB"
-	char* sizeInStringRight = strtok(sizeInStringWrong, "M");
-	int size = atoi(sizeInStringRight);
-	size *= 1048576;
 	
 
-	int SIZE = size / 8;
+	const int SIZE = 5000;
 	int rank, numProc; 
 
 	MPI_Init(&argc, &argv);
