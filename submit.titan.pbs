@@ -8,7 +8,7 @@
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 80 -N 16 ./striping-benchmark.titan.exe -s 50MB -c integer.$PBS_JOBID > $PBS_O_WORKDIR/striping-titan.$PBS_JOBID.txt
+aprun -n 80 -N 16 ./striping-benchmark.titan.exe -s 50MB -c integer > $PBS_O_WORKDIR/striping-titan.$PBS_JOBID.txt
 cd $PBS_O_WORKDIR
 source $MODULESHOME/init/bash
 module load python_matplotlib
