@@ -13,8 +13,8 @@ typedef struct {
 	} Timing;
 
 void setBoundsForRanks(int, int, long long int, long long int*, long long int*);
-void createFile(char*, long long int, long long int*, int , long long int, long long int, int, char*);	
-void verifyFile(char*, long long int*, int, long long int, long long int, long long int, int, char*);
+void createFile(char*, long long int, long long int*, int , long long int, int, char*);	
+void verifyFile(char*, long long int*, int, long long int, long long int, int, char*);
 void printCreateFile(Timing*, int, char*);
 void printVerifyFile(Timing*, int, char*);
 long long int setSize(char*);
@@ -23,14 +23,12 @@ int main(int argc, char ** argv){
 
 	int rank, numProc; 
 	long long int lowerBound, upperBound;
+	long long int SIZE = 0;
 
 	MPI_Init(&argc, &argv);
-	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 
-	long long int SIZE = 0;
-	int opt = 0;
 
 	char filename[50];
 	char filesize[50]; 
@@ -38,10 +36,10 @@ int main(int argc, char ** argv){
 	typedef enum {
 		create,
 		verify,
-		nothing
+		dontDoAnything
 	} Choice;
 
-	Choice createOrVerify = nothing;
+	Choice createOrVerify = dontDoAnything;
 
 	struct option long_options[] = {
 		{"size", required_argument, 0, 's' },
@@ -50,10 +48,8 @@ int main(int argc, char ** argv){
 		{NULL,0,0,0}
 	};
 
-
-
 	int long_index = 0;
-
+	int opt = 0;
 
 	while(( opt = getopt_long(argc, argv,"s:c:v:",long_options, &long_index)) != -1){
 		switch(opt){
@@ -87,11 +83,11 @@ int main(int argc, char ** argv){
 
 		if(createOrVerify == create){
 
-			createFile(filename, SIZE, integers, rank, lowerBound, upperBound, numProc, filesize);
+			createFile(filename, SIZE, integers, rank, lowerBound, numProc, filesize);
 
 		}else if(createOrVerify == verify){
 
-			verifyFile(filename, integers, rank, lowerBound, upperBound, SIZE, numProc, filesize);
+			verifyFile(filename, integers, rank, lowerBound, SIZE, numProc, filesize);
 
 		}else{
 			printf("You have made a mistake!! Did you forget an option?\n");
@@ -102,7 +98,7 @@ int main(int argc, char ** argv){
 	return 0;
 
 }
-
+//THIS FUNCTIONS CONVERTS A GIVEN FILE SIZE TO THE LENGTH OF AN ARRAY THAT WOULD EQUAL THAT SIZE
 long long int setSize(char* commandLineArgument){
 	
 	long long int size, sizeOfArray;
@@ -110,25 +106,25 @@ long long int setSize(char* commandLineArgument){
 	if(strchr(commandLineArgument, 'K') != NULL){
 		sizeInString = strtok(commandLineArgument, "K");
 		size = atoi(sizeInString);
-		size *= 1024;// Right hand side is #bytes in Kilobyte
+		size *= 1024;// Right hand side is # of bytes in Kilobyte
 		sizeOfArray = size / 8;	
 	}
 	else if(strchr(commandLineArgument, 'M') != NULL){
 		sizeInString = strtok(commandLineArgument, "M");
 		size = atoi(sizeInString);
-		size *= 1048576;// Right hand side is #bytes in Megabyte
-		sizeOfArray = size / 8; //////
+		size *= 1048576;// Right hand side is # of bytes in Megabyte
+		sizeOfArray = size / 8; 
 	}
 	else if(strchr(commandLineArgument, 'G') != NULL){
 		sizeInString = strtok(commandLineArgument, "G");
 		size = atoi(sizeInString);
-		size *= 1073741824;// Right hand side is #bytes in Gigabyte
+		size *= 1073741824;// Right hand side is # of bytes in Gigabyte
 		sizeOfArray = size / 8;
 	}
 	else if(strchr(commandLineArgument, 'T') != NULL){
 		sizeInString = strtok(commandLineArgument, "T");
 		size = atoi(sizeInString);
-		size *= 1099511627776; // Right hand side is #bytes in Terabyte
+		size *= 1099511627776; // Right hand side is # of bytes in Terabyte
 		sizeOfArray = size / 8;
 	}
 	else if(strchr(commandLineArgument, 'B') != NULL){
@@ -140,7 +136,7 @@ long long int setSize(char* commandLineArgument){
 
 	return sizeOfArray;
 }
-
+//THIS FUNCTION SETS THE BOUNDS OF THE ARRAY THAT EACH RANK WILL GENERATE
 void setBoundsForRanks(int rank, int numProc, long long int arraySize, long long int* lowerBound, long long int* upperBound){
 
 	long long int baseAmount = arraySize / numProc;
@@ -171,32 +167,32 @@ void printCreateFile(Timing* t, int rank, char* fileSize){
 //THIS FUNCTION PRINTS VERIFICATION TIMING INFORMATION
 void printVerifyFile(Timing* t, int rank, char* fileSize){
 	
-
 	printf( "{\"rank\": %d, \"Open Time\":%f, \"Verify Time\": %f, \"Read Time\": %f, \"Close Time\": %f, \"File Size\": \"%s\"}\n",rank, t->open, t->array, t->readOrWrite, t->close, fileSize);
 
 }
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
-void createFile(char filename[], long long int SIZE, long long int integers[], int rank, long long int lowerBound, long long int upperBound, int numProc, char* fileSize){	
+void createFile(char filename[], long long int SIZE, long long int integers[], int rank, long long int lowerBound, int numProc, char* fileSize){	
+	
 	double start, end;
 	Timing timerOfProcesses;
 	int err=0;	
 
-	long long int sizeAssignedToEachRank;
+	long long int sizeAssignedToRank;
 	long long int extraWork = SIZE % numProc;
 	if(rank < extraWork){
-		sizeAssignedToEachRank = (SIZE / numProc) + 1;
+		sizeAssignedToRank = (SIZE / numProc) + 1;
 	}else{
-		sizeAssignedToEachRank = SIZE / numProc;
+		sizeAssignedToRank = SIZE / numProc;
 	}
 	
-	char str[20];
+	char str[50];
 	sprintf(str, ".dat");
 	strcat(filename, str);
 	
 	MPI_File outfile;
 	MPI_Status status;
-	MPI_Request request;
-	MPI_Offset disp =  2 * sizeof(MPI_LONG_LONG_INT) * rank * sizeAssignedToEachRank;
+	MPI_Offset disp =  2 * sizeof(MPI_LONG_LONG_INT) * rank * sizeAssignedToRank;
+	
 	MPI_File_delete(filename, MPI_INFO_NULL);
 
 	start = MPI_Wtime();// Start timing
@@ -211,7 +207,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	start = MPI_Wtime();// Start Timing
 	long long int i;
 	#pragma omp parallel for 
-		for( i = 0; i < sizeAssignedToEachRank; i++){
+		for( i = 0; i < sizeAssignedToRank; i++){
 			integers[i] = lowerBound + i;
 		}
 	
@@ -219,11 +215,10 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 	
-	//MPI_File_seek(outfile, disp, MPI_SEEK_CUR);
 	MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
 
 	start = MPI_Wtime();// Start Timing
-	err = MPI_File_write(outfile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	err = MPI_File_write(outfile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
 	if(err){
 		MPI_Abort(MPI_COMM_WORLD, 2);
 	}
@@ -242,17 +237,17 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
-void verifyFile(char filename[], long long int integers[], int rank, long long int lowerBound, long long int upperBound, long long int SIZE, int numProc, char* fileSize){
+void verifyFile(char filename[], long long int integers[], int rank, long long int lowerBound, long long int SIZE, int numProc, char* fileSize){
 	double start, end;
 	int err = 0;
 	Timing timerOfProcesses;
 	
-	long long int sizeAssignedToEachRank;
+	long long int sizeAssignedToRank;
 	long long int extraWork = SIZE % numProc;
 	if(rank < extraWork){
-		sizeAssignedToEachRank = (SIZE / numProc) + 1;
+		sizeAssignedToRank = (SIZE / numProc) + 1;
 	}else{
-		sizeAssignedToEachRank = SIZE / numProc;
+		sizeAssignedToRank = SIZE / numProc;
 	}
 
 	typedef enum{
@@ -268,7 +263,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 
 	MPI_File infile;
 	MPI_Status status;
-	MPI_Offset disp = 2 * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToEachRank * rank;
+	MPI_Offset disp = 2 * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToRank * rank;
 
 	
 	start = MPI_Wtime();//Start Timing
@@ -279,10 +274,10 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.open = end - start;
 	
-	 MPI_File_set_view( infile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL );
+	MPI_File_set_view( infile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL );
 
 	start = MPI_Wtime();//Start Timing
-	err = MPI_File_read(infile, integers, sizeAssignedToEachRank, MPI_LONG_LONG_INT, &status);
+	err = MPI_File_read(infile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
 	if(err){
 		MPI_Abort(MPI_COMM_WORLD, 5);
 	}
@@ -291,7 +286,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 
 	start = MPI_Wtime();// Start Timing
 	long long int i;
-	for( i = 0; i < sizeAssignedToEachRank; i++){
+	for( i = 0; i < sizeAssignedToRank; i++){
 		if(integers[i] != (lowerBound + i)){
 			end = MPI_Wtime();// End Timing if files not same
 			timerOfProcesses.array = end - start;
