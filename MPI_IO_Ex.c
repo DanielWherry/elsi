@@ -6,7 +6,14 @@
 
 int main(int argc, char ** argv){
 
-	const int SIZE = 5000;
+
+	char* sizeInStringWrong = "500MB"
+	char* sizeInStringRight = strtok(sizeInStringWrong, "M");
+	int size = atoi(sizeInStringRight);
+	size *= 1048576;
+	
+
+	int SIZE = size / 8;
 	int rank, numProc; 
 
 	MPI_Init(&argc, &argv);
@@ -27,11 +34,11 @@ int main(int argc, char ** argv){
 	MPI_Status status;
 	MPI_Offset disp = rank * sizeof(MPI_INT) * SIZE;
 	
-	MPI_File_open(MPI_COMM_WORLD, "numbers.dat", MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
+	MPI_File_open(MPI_COMM_WORLD, "EXAMPLE.dat", MPI_MODE_CREATE|MPI_MODE_WRONLY, MPI_INFO_NULL, &file);
 	
-	MPI_File_set_view(file, disp, MPI_INT, MPI_INT, "native", MPI_INFO_NULL);	
+	MPI_File_set_view(file, disp, MPI_INT, SIZE, "native", MPI_INFO_NULL);	
 	
-	MPI_File_write_ordered(file, integers, disp, MPI_INT, &status);
+	MPI_File_write(file, integers, disp, MPI_INT, &status);
 
 	MPI_File_close(&file);
 	
