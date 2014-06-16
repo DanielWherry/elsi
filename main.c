@@ -77,21 +77,22 @@ int main(int argc, char ** argv){
 
 
 	}
-		setBoundsForRanks(rank,numProc, SIZE, &lowerBound, &upperBound);
-		long long int sizeForRank = upperBound - lowerBound + 1;
-		long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 
-		if(createOrVerify == create){
+	setBoundsForRanks(rank,numProc, SIZE, &lowerBound, &upperBound);
+	long long int sizeForRank = upperBound - lowerBound + 1;
+	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 
-			createFile(filename, SIZE, integers, rank, lowerBound, numProc, filesize);
+	if(createOrVerify == create){
 
-		}else if(createOrVerify == verify){
+		createFile(filename, SIZE, integers, rank, lowerBound, numProc, filesize);
 
-			verifyFile(filename, integers, rank, lowerBound, SIZE, numProc, filesize);
+	}else if(createOrVerify == verify){
 
-		}else{
-			printf("You have made a mistake!! Did you forget an option?\n");
-		}
+		verifyFile(filename, integers, rank, lowerBound, SIZE, numProc, filesize);
+
+	}else{
+		printf("You have made a mistake!! Did you forget an option?\n");
+	}
 
 	MPI_Finalize();	
 	free(integers);
