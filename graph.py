@@ -11,15 +11,16 @@ import re
 def html(message, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, numRanks, numberOfNodes, finalFileSize):
 
 	PBS_SCRIPT = open('submit.titan.pbs','r')
-	contentsOfScript = PBS_SCRIPT.read()
+
+	contentsOfScript = PBS_SCRIPT.read()	
+		
 	PBS_SCRIPT.close()
 	
-
 	ranksPerNode = numRanks / numberOfNodes
 
 	HTML = open('StripingBenchmarkResults.html', 'w')
 	finalMessage = """<html>
-	<head><title>REPORT ON TIMING</title><h1>This run was completed using %(ranks)d ranks at %(rpNode)d ranks per node to make %(fileSize)s sized files. Here was the scipt submitted to run this test: </h1><h3>%(script)s</h3></head>
+	<head><title>REPORT ON TIMING</title><h1>This run was completed using %(ranks)d ranks at %(rpNode)d ranks per node to make %(fileSize)s sized files. Here was the scipt submitted to run this test: </h1><h2><pre><code>%(script)s</code></pre></h2></head>
 	<body>
 	<table><tr>
 	<td><p align="center"> <img src ="OpenTime.png" alt = "It's closing time..."align=middle></td>

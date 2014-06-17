@@ -156,11 +156,8 @@ void setBoundsForRanks(int rank, int numProc, long long int arraySize, long long
 
 
 }
-
-
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(Timing* t, int rank, char* fileSize){
-
 
 	printf( "{\"rank\": %d, \"Open Time\":%f, \"Generation Time\": %f, \"Write Time\": %f, \"Close Time\": %f,\"File Size\":\"%s\"}\n",rank, t->open, t->array, t->readOrWrite, t->close, fileSize );
 
@@ -175,8 +172,8 @@ void printVerifyFile(Timing* t, int rank, char* fileSize){
 void createFile(char filename[], long long int SIZE, long long int integers[], int rank, long long int lowerBound, int numProc, char* fileSize){	
 	
 	double start, end;
-	Timing timerOfProcesses;
 	int err=0;	
+	Timing timerOfProcesses;
 
 	long long int sizeAssignedToRank;
 	long long int extraWork = SIZE % numProc;
@@ -239,6 +236,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 }
 //THIS FUNCTION OPENS AN EXISTING FILE AND CHECKS THE DATA IN IT TO MAKE SURE THAT IT IS CORRECT
 void verifyFile(char filename[], long long int integers[], int rank, long long int lowerBound, long long int SIZE, int numProc, char* fileSize){
+
 	double start, end;
 	int err = 0;
 	Timing timerOfProcesses;
