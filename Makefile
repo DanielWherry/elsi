@@ -8,3 +8,5 @@ striping-benchmark.rhea.exe: main.c
 striping-benchmark.titan.exe: main.c
 	cc -o striping-benchmark.titan.exe main.c -mp
 	cp striping-benchmark.titan.exe $(MEMBERWORK)/stf007
+submit.titan.pbs:
+	cp submit.titan.pbs $(MEMBERWORK)/stf007

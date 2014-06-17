@@ -4,14 +4,20 @@
 #PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:30:00,nodes=25
+#PBS -l walltime=0:10:00,nodes=10
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-lfs setstripe --size 64M -c 800 integer.dat 
-aprun -n 400 -N 16 ./striping-benchmark.titan.exe -s 50GB -c integer > $PBS_O_WORKDIR/striping-titan.$PBS_JOBID.txt
-cd $PBS_O_WORKDIR
+#rm integer.dat
+#lfs setstripe --size 3m -c 16 integer.dat 
+aprun -n 160 -N 16 ./striping-benchmark.titan.exe -s 50GB -v integer > striping-titan.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
 python graph.py -f striping-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
-mv StripingBenchmarkResults.html StripingBenchmarkResults.$PBS_JOBID.html 
+mv StripingBenchmarkResults.html $PBS_O_WORKDIR/Official-Reports/StripingBenchmarkResults.$PBS_JOBID.html
+mv OpenTime.* $PBS_O_WORKDIR/Official-Reports/
+mv CloseTime.* $PBS_O_WORKDIR/Official-Reports/
+mv GenerateTime.* $PBS_O_WORKDIR/Official-Reports/
+mv WriteTime.* $PBS_O_WORKDIR/Official-Reports/
+mv ReadTime.* $PBS_O_WORKDIR/Official-Reports/
+mv VerifyTime.* $PBS_O_WORKDIR/Official-Reports/ 
