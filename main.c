@@ -12,6 +12,7 @@ typedef struct {
 	double close;
 	} Timing;
 
+void alterFile(char*);
 void setBoundsForRanks(int, int, long long int, long long int*, long long int*);
 void createFile(char*, long long int, long long int*, int , long long int, int, char*);	
 void verifyFile(char*, long long int*, int, long long int, long long int, int, char*);
@@ -36,23 +37,31 @@ int main(int argc, char ** argv){
 	typedef enum {
 		create,
 		verify,
+		alter,
 		dontDoAnything
 	} Choice;
 
-	Choice createOrVerify = dontDoAnything;
+	Choice whatToDoToFile = dontDoAnything;
 
 	struct option long_options[] = {
 		{"size", required_argument, 0, 's' },
         	{"create", required_argument, 0, 'c' },
 		{"verify", required_argument, 0, 'v' },
+		{"alter", required_argument, 0, 'a'},
 		{NULL,0,0,0}
 	};
 
 	int long_index = 0;
 	int opt = 0;
 
-	while(( opt = getopt_long(argc, argv,"s:c:v:",long_options, &long_index)) != -1){
+	while(( opt = getopt_long(argc, argv,"a:s:c:v:",long_options, &long_index)) != -1){
 		switch(opt){
+			case 'a' :
+				
+				whatToDoToFile = alter;	
+				strcpy(filename,optarg);
+				break;
+	
 			case 's' :
 				
 				strcpy(filesize,optarg);
@@ -61,15 +70,14 @@ int main(int argc, char ** argv){
 
 			case 'c' :	
 
-				createOrVerify = create;
+				whatToDoToFile = create;
 				strcpy(filename,optarg); 
 
 				break;
 
 			case 'v' : 
 
-				createOrVerify = verify;					
-				strcpy(filename,optarg); 
+				whatToDoToFile = verify;							strcpy(filename,optarg); 
 
 				break;
 
@@ -78,19 +86,25 @@ int main(int argc, char ** argv){
 
 	}
 
+	if(whatToDoToFile == alter){
+		printf("You tired to make a function call");	
+		alterFile(filename);
+	}
+
 	setBoundsForRanks(rank,numProc, SIZE, &lowerBound, &upperBound);
 	long long int sizeForRank = upperBound - lowerBound + 1;
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 
-	if(createOrVerify == create){
+	if(whatToDoToFile == create){
 
 		createFile(filename, SIZE, integers, rank, lowerBound, numProc, filesize);
-
-	}else if(createOrVerify == verify){
+	
+	}else if(whatToDoToFile == verify){
 
 		verifyFile(filename, integers, rank, lowerBound, SIZE, numProc, filesize);
-
+	
 	}else{
+	
 		printf("You have made a mistake!! Did you forget an option?\n");
 	}
 
@@ -99,6 +113,25 @@ int main(int argc, char ** argv){
 	return 0;
 
 }
+void alterFile(char* filename){
+	
+	printf("You came here to change a file\n");
+	char str[50];
+	sprintf(str, ".dat");
+	strcat(filename, str);
+	
+	FILE* file;
+	
+	file = fopen(filename, "wb+");
+	
+	int array[10];
+
+	fwrite(array, sizeof(array[0]), sizeof(array)/sizeof(array[0]), file);
+
+	fclose(file);
+ 	printf("You changed that file real good\n");
+}
+
 //THIS FUNCTIONS CONVERTS A GIVEN FILE SIZE TO THE LENGTH OF AN ARRAY THAT WOULD EQUAL THAT SIZE
 long long int setSize(char* commandLineArgument){
 	
@@ -189,7 +222,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	
 	MPI_File outfile;
 	MPI_Status status;
-	MPI_Offset disp =  2 * sizeof(MPI_LONG_LONG_INT) * rank * sizeAssignedToRank;
+	MPI_Offset disp =   sizeof(long long int) * rank * sizeAssignedToRank;
 	
 	MPI_File_delete(filename, MPI_INFO_NULL);
 
@@ -262,7 +295,7 @@ void verifyFile(char filename[], long long int integers[], int rank, long long i
 
 	MPI_File infile;
 	MPI_Status status;
-	MPI_Offset disp = 2 * sizeof(MPI_LONG_LONG_INT) * sizeAssignedToRank * rank;
+	MPI_Offset disp =  sizeof(long long int) * sizeAssignedToRank * rank;
 
 	
 	start = MPI_Wtime();//Start Timing
