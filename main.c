@@ -12,7 +12,6 @@ typedef struct {
 	double close;
 	} Timing;
 
-void alterFile(char*);
 void setBoundsForRanks(int, int, long long int, long long int*, long long int*);
 void createFile(char*, long long int, long long int*, int , long long int, int, char*);	
 void verifyFile(char*, long long int*, int, long long int, long long int, int, char*);
@@ -37,7 +36,6 @@ int main(int argc, char ** argv){
 	typedef enum {
 		create,
 		verify,
-		alter,
 		dontDoAnything
 	} Choice;
 
@@ -47,21 +45,14 @@ int main(int argc, char ** argv){
 		{"size", required_argument, 0, 's' },
         	{"create", required_argument, 0, 'c' },
 		{"verify", required_argument, 0, 'v' },
-		{"alter", required_argument, 0, 'a'},
 		{NULL,0,0,0}
 	};
 
 	int long_index = 0;
 	int opt = 0;
 
-	while(( opt = getopt_long(argc, argv,"a:s:c:v:",long_options, &long_index)) != -1){
+	while(( opt = getopt_long(argc, argv,"s:c:v:",long_options, &long_index)) != -1){
 		switch(opt){
-			case 'a' :
-				
-				whatToDoToFile = alter;	
-				strcpy(filename,optarg);
-				break;
-	
 			case 's' :
 				
 				strcpy(filesize,optarg);
@@ -72,23 +63,18 @@ int main(int argc, char ** argv){
 
 				whatToDoToFile = create;
 				strcpy(filename,optarg); 
-
 				break;
 
 			case 'v' : 
 
-				whatToDoToFile = verify;							strcpy(filename,optarg); 
+				whatToDoToFile = verify;	
+				strcpy(filename,optarg); 
 
 				break;
 
 		}
 
 
-	}
-
-	if(whatToDoToFile == alter){
-		printf("You tired to make a function call");	
-		alterFile(filename);
 	}
 
 	setBoundsForRanks(rank,numProc, SIZE, &lowerBound, &upperBound);
@@ -113,25 +99,6 @@ int main(int argc, char ** argv){
 	return 0;
 
 }
-void alterFile(char* filename){
-	
-	printf("You came here to change a file\n");
-	char str[50];
-	sprintf(str, ".dat");
-	strcat(filename, str);
-	
-	FILE* file;
-	
-	file = fopen(filename, "wb+");
-	
-	int array[10];
-
-	fwrite(array, sizeof(array[0]), sizeof(array)/sizeof(array[0]), file);
-
-	fclose(file);
- 	printf("You changed that file real good\n");
-}
-
 //THIS FUNCTIONS CONVERTS A GIVEN FILE SIZE TO THE LENGTH OF AN ARRAY THAT WOULD EQUAL THAT SIZE
 long long int setSize(char* commandLineArgument){
 	
