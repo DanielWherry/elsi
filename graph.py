@@ -8,9 +8,11 @@ from pylab import *
 import re
 
 
-def html(message, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, numRanks, numberOfNodes, finalFileSize, closeFileName, openFileName):
+def html(message, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, numRanks, numberOfNodes, finalFileSize, closeFileName, openFileName, JOB_ID):
 
-	PBS_SCRIPT = open('submit.titan.pbs','r')
+	nameOfSubmitScript = "submit.titan.%(name)d.pbs"%{"name":JOB_ID}	
+
+	PBS_SCRIPT = open(nameOfSubmitScript,'r')
 
 	contentsOfScript = PBS_SCRIPT.read()	
 		
@@ -44,8 +46,8 @@ parser.add_option("-n", "--numNodes", action="store", type="int", dest="numNodes
 
 f = open(options.filename, 'r')
 
-littleJob = re.findall('\d+',options.filename) 
-JOB_ID = int(littleJob[0])
+fileContainingJobID = re.findall('\d+',options.filename) 
+JOB_ID = int(fileContainingJobID[0])
 
 rank = []
 openT = []
@@ -141,7 +143,7 @@ if choice == "The file is being verified":
   <tr><td><img src =%(readFile)s alt = "It's closing time..."align=middle></td>
 <td><font size="5">This graph displays the time it took for each rank to read a file.The average time it took for a rank to read a file was %(readTime)f seconds, with a standard deviation of %(rDev)f seconds.</font></td></tr>""" % {"verifyTime": verifyTimeMean, "readTime":readTimeMean, "rDev":readTimeDev, "vDev":verifyTimeDev,"verFile": verifyFileName, "readFile":readFileName}
 
-    html(message1, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize, closeFileName, openFileName)
+    html(message1, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize, closeFileName, openFileName, JOB_ID)
 
 if choice == "The file is being created":
     generateTimeMean = np.mean(generate)
@@ -173,5 +175,5 @@ if choice == "The file is being created":
 <tr><td><p align = "center"><img src =%(writeFile)s alt = "It's closing time..."align=left /></td>
 <td><font size="5">This graph displays the time it took for each rank to write a file. The average time it took for each rank to  write to a file was %(writeTime)f seconds, with a standard deviation of %(wDev)f seconds. </font></td></tr>""" %{"generateTime":generateTimeMean, "writeTime":writeTimeMean, "wDev":writeTimeDev, "genDev":generateTimeDev, "genFile":generateFileName, "writeFile":writeFileName}
 
-    html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize, closeFileName, openFileName)
+    html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize, closeFileName, openFileName, JOB_ID)
 
