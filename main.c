@@ -201,6 +201,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	end = MPI_Wtime();// End timing
 	timerOfProcesses.open = end - start;
 
+
 	omp_set_num_threads(16);	
 	start = MPI_Wtime();// Start Timing
 	long long int i;
@@ -208,13 +209,11 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 		for( i = 0; i < sizeAssignedToRank; i++){
 			integers[i] = lowerBound + i;
 		}
-	
-	
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
-	
-	MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
 
+	MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+	
 	start = MPI_Wtime();// Start Timing
 	err = MPI_File_write(outfile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
 	if(err){
@@ -222,7 +221,7 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	}
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.readOrWrite = end - start;
-	
+
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing

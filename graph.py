@@ -46,9 +46,7 @@ f = open(options.filename, 'r')
 
 littleJob = re.findall('\d+',options.filename) 
 JOB_ID = int(littleJob[0])
-print JOB_ID
 
-listOfDictionaries = []
 rank = []
 openT = []
 generate = []
@@ -60,30 +58,25 @@ fileSize = []
 
 for line in f:
     try:
-        dict = json.loads( line )	
-        listOfDictionaries.append(dict)
+    	rank.append(line['rank'])
+    	openT.append(line['Open Time'])
+    	close.append(line['Close Time'])
+    	fileSize.append(line['File Size'])
+    	if "Read Time" in line:
+    	  verify.append(line['Verify Time'])
+    	  read.append(line['Read Time']) 
+    	  choice = "The file is being verified"
+    	elif "Generation Time" in x:
+    	  generate.append(line['Generation Time'])
+    	  write.append(line['Write Time'])
+    	  choice = "The file is being created"
+
     except ValueError:
 	thisDoesntDoAnything = 10	 	 
     
 f.close()
 
-sortedDictionaryList = sorted(listOfDictionaries, key=lambda k: k['rank'])
-
 choice = "This hasn't been assigned"
-
-for x in sortedDictionaryList:
-    rank.append(x['rank'])
-    openT.append(x['Open Time'])
-    close.append(x['Close Time'])
-    fileSize.append(x['File Size'])
-    if "Read Time" in x:
-      verify.append(x['Verify Time'])
-      read.append(x['Read Time']) 
-      choice = "The file is being verified"
-    elif "Generation Time" in x:
-      generate.append(x['Generation Time'])
-      write.append(x['Write Time'])
-      choice = "The file is being created"
 
 completeFileSizeInString = re.sub('[MKGTB]','',fileSize[0])
 completeFileSizeInInt = int(completeFileSizeInString)
