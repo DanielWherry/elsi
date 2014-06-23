@@ -58,31 +58,33 @@ write = []
 close = []
 fileSize = []
 
+choice = "This hasn't been assigned"
+
 for line in f:
     try:
-    	rank.append(line['rank'])
-    	openT.append(line['Open Time'])
-    	close.append(line['Close Time'])
-    	fileSize.append(line['File Size'])
-    	if "Read Time" in line:
-    	  verify.append(line['Verify Time'])
-    	  read.append(line['Read Time']) 
-    	  choice = "The file is being verified"
-    	elif "Generation Time" in x:
-    	  generate.append(line['Generation Time'])
-    	  write.append(line['Write Time'])
-    	  choice = "The file is being created"
+	dict = json.loads( line )
+    	rank.append(dict['rank'])
+    	openT.append(dict['Open Time'])
+    	close.append(dict['Close Time'])
+    	fileSize.append(dict['File Size'])
+    	if 'Read Time' in dict:
+    		verify.append(dict['Verify Time'])
+    		read.append(dict['Read Time']) 
+    		choice = "The file is being verified"
+    	if 'Generation Time' in dict:
+    		generate.append(dict['Generation Time'])
+    		write.append(dict['Write Time'])
+    		choice = "The file is being created"
 
     except ValueError:
 	thisDoesntDoAnything = 10	 	 
     
 f.close()
 
-choice = "This hasn't been assigned"
 
 completeFileSizeInString = re.sub('[MKGTB]','',fileSize[0])
 completeFileSizeInInt = int(completeFileSizeInString)
-fileSizeEnding = re.sub('[0123456789]','',fileSize[1])
+fileSizeEnding = re.sub('[0123456789]','',fileSize[0])
 rankFileSize = float(completeFileSizeInInt) / len(fileSize)
 finalFileSize = str(rankFileSize) + fileSizeEnding
 
@@ -177,3 +179,4 @@ if choice == "The file is being created":
 
     html(message2, openTimeMean, closeTimeMean, openTimeDev, closeTimeDev, rankNumber, numberOfNodes, finalFileSize, closeFileName, openFileName, JOB_ID)
 
+print choice

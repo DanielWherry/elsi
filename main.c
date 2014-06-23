@@ -172,7 +172,9 @@ void printVerifyFile(Timing* t, int rank, char* fileSize){
 void createFile(char filename[], long long int SIZE, long long int integers[], int rank, long long int lowerBound, int numProc, char* fileSize){	
 	
 	double start, end;
+	long long int i;
 	int err=0;	
+	int partnerRank = rank % 16;
 	Timing timerOfProcesses;
 
 	long long int sizeAssignedToRank;
@@ -189,45 +191,53 @@ void createFile(char filename[], long long int SIZE, long long int integers[], i
 	
 	MPI_File outfile;
 	MPI_Status status;
+	MPI_Request request[numProc];
 	MPI_Offset disp =   sizeof(long long int) * rank * sizeAssignedToRank;
 	
-	MPI_File_delete(filename, MPI_INFO_NULL);
+	if(rank == 0){
+		MPI_File_delete(filename, MPI_INFO_NULL);
 
-	start = MPI_Wtime();// Start timing
-	err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
-	if(err){
-		MPI_Abort(MPI_COMM_WORLD, 1);
-	}
-	end = MPI_Wtime();// End timing
-	timerOfProcesses.open = end - start;
-
-
-	omp_set_num_threads(16);	
-	start = MPI_Wtime();// Start Timing
-	long long int i;
-	#pragma omp parallel for 
-		for( i = 0; i < sizeAssignedToRank; i++){
-			integers[i] = lowerBound + i;
+		start = MPI_Wtime();// Start timing
+		err = MPI_File_open(MPI_COMM_WORLD, filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
+		if(err){
+			MPI_Abort(MPI_COMM_WORLD, 1);
 		}
-	end = MPI_Wtime();// End Timing
-	timerOfProcesses.array = end - start;
-
-	MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+		end = MPI_Wtime();// End timing
+		timerOfProcesses.open = end - start;
+		
+		for(i = 0; i < numProc; i++){
+			MPI_Irecv(&integers, sizeAssignedToRank, MPI_LONG_LONG_INT, i+1, 0, MPI_COMM_WORLD, &request[i]);
 	
-	start = MPI_Wtime();// Start Timing
-	err = MPI_File_write(outfile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
-	if(err){
-		MPI_Abort(MPI_COMM_WORLD, 2);
+			MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+	
+			start = MPI_Wtime();// Start Timing
+			err = MPI_File_write(outfile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
+			if(err){
+				MPI_Abort(MPI_COMM_WORLD, 2);
+			}
+			end = MPI_Wtime();// End Timing
+			timerOfProcesses.readOrWrite = end - start;
+			MPI_Wait(&request[i], MPI_STATUS_IGNORE);
+		}
 	}
-	end = MPI_Wtime();// End Timing
-	timerOfProcesses.readOrWrite = end - start;
+	
+	else{
+		start = MPI_Wtime();// Start Timing
+		#pragma omp parallel for
+			for( i = 0; i < sizeAssignedToRank; i++){
+				integers[i] = lowerBound + i;
+			}
+		end = MPI_Wtime();// End Timing
+		timerOfProcesses.array = end - start;
+		MPI_Send(&integers, sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, MPI_COMM_WORLD);
+	}
 
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
-
-
+	
+	
 	printCreateFile(&timerOfProcesses, rank, fileSize);
 
 
