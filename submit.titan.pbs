@@ -13,7 +13,7 @@ cd $MEMBERWORK/stf007
 rm integer.dat
 lfs setstripe --size 3m -c 16 integer.dat
 export OMP_NUM_THREADS=16 
-aprun -n 5 -N 1 ./striping-benchmark.titan.exe -s 50MB -c integer  > striping-titan.$PBS_JOBID.txt
+aprun -n 5 -N 1 ./striping-benchmark.titan.exe -s 50MB -n 1 -c integer  > striping-titan.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
 python graph.py -f striping-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
