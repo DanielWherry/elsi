@@ -3,7 +3,6 @@
 #include <string.h>
 #include <mpi.h>
 #include <getopt.h>
-#include <omp.h>
 #include "createFile.h"
 #include "verifyFile.h"
 #include "benchmarkFunctions.h"

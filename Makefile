@@ -17,7 +17,7 @@ benchmarkFunctions.titan.o: benchmarkFunctions.c benchmarkFunctions.h
 	cc -o benchmarkFunctions.titan.o benchmarkFunctions.c -c
 
 striping-benchmark.mac.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
-	mpicc -o striping-benchmark.mac.exe main.c createFile.o verifyFile.o benchmarkFunctions.o
+	mpicc -o striping-benchmark.mac.exe main.c createFile.o verifyFile.o benchmarkFunctions.o 
 
 striping-benchmark.rhea.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
 	mpicc -o striping-benchmark.rhea.exe main.c createFile.o verifyFile.o benchmarkFunctions.o

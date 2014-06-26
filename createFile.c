@@ -1,6 +1,5 @@
 #include "createFile.h"
 #include <mpi.h>
-#include <omp.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -18,29 +17,8 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 	long long int i;
 	char rankID[4];
 	int err=0;	
-	
-	int sizeOfSubComm = numProc / numIORanks;	
-	int* subCommArray;	
-	MPI_Comm subComm;	
-	MPI_Group worldGroup, subGroup;
-
-	if(rank % sizeOfSubComm == 0){
-	
-		sizeOfSubComm = numProc / numIORanks;
-		subCommArray = (int*) malloc(sizeof(int) * sizeOfSubComm);
-		strcpy(rankID, "root");
-		
-		for(i = rank; i < sizeOfSubComm; i++){
-			subCommArray[i] = i;
-		}
-	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
-	MPI_Group_incl(worldGroup, sizeOfSubComm, subCommArray, &subGroup); 
-	MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
-	}
-
-	
 	Timing timerOfProcesses;
-	
+
 	long long int sizeAssignedToRank;
 	long long int extraWork = fileInfo.SIZE % numProc;
 	if(rank < extraWork){
@@ -48,6 +26,41 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 	}else{
 		sizeAssignedToRank = fileInfo.SIZE / numProc;
 	}
+
+
+	start = MPI_Wtime();// Start Timing
+	#pragma omp parallel for
+		for( i = 0; i < sizeAssignedToRank; i++){
+			integers[i] = lowerBound + i;
+		}
+	end = MPI_Wtime();// End Timing
+	timerOfProcesses.array = end - start;
+
+	
+	int sizeOfSubComm = numProc / numIORanks;	
+	int* subCommArray;	
+	MPI_Comm subComm;	
+	MPI_Group worldGroup, subGroup;
+	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
+
+	if(rank % sizeOfSubComm == 0){
+	
+		subCommArray = (int*) malloc(sizeof(int) * sizeOfSubComm);
+		strcpy(rankID, "root");
+		
+		subCommArray[0] = 0;
+		subCommArray[1] = 5;
+		//for(i = 0; i < 1; i++){
+		//	subCommArray[i] = rank;
+		//}
+		printf("%d\n",subCommArray[1]);
+	}
+	MPI_Group_incl(worldGroup, sizeOfSubComm, subCommArray, &subGroup);printf("hey"); 
+	MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
+		
+
+	
+	
 
 	char str[50];
 	sprintf(str, ".dat");
@@ -61,7 +74,7 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 	if(strcmp(rankID,"root")){
 		MPI_File_delete(fileInfo.filename, MPI_INFO_NULL);
 
-
+		
 		start = MPI_Wtime();// Start timing
 		err = MPI_File_open(MPI_COMM_WORLD, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
 		if(err){
@@ -69,8 +82,10 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 		}
 		end = MPI_Wtime();// End timing
 		timerOfProcesses.open = end - start;
+	
+		long long int* integersToWrite = (long long int*) malloc(sizeof(long long int) *sizeAssignedToRank); 
 
-		MPI_Scatter(integers, sizeAssignedToRank, MPI_LONG_LONG_INT, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, rank, subComm);	
+		MPI_Gather(integers, sizeAssignedToRank, MPI_LONG_LONG_INT, integersToWrite, sizeAssignedToRank, MPI_LONG_LONG_INT, rank, subComm);	
 		
 		MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
 
@@ -84,14 +99,7 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 		
 	}
 
-		start = MPI_Wtime();// Start Timing
-		#pragma omp parallel for
-			for( i = 0; i < sizeAssignedToRank; i++){
-				integers[i] = lowerBound + i;
-			}
-		end = MPI_Wtime();// End Timing
-		timerOfProcesses.array = end - start;
-
+	
 
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
