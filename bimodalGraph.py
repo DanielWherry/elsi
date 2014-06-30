@@ -34,14 +34,14 @@ f.close()
 
 for x in listOfDictionaries:
   rank.append(x['rank'])
-  generate.append(x['Generation Time'])
+  generate.append(x['Generate Time'])
 
 pyplot.scatter(rank,generate, label = 'Generate')
 pyplot.title('Timing Report')
 pyplot.xlabel('Rank ID')
 pyplot.ylabel( 'Time(seconds)')
 pyplot.legend()
-pyplot.savefig('bimodalGenerate.png')
+pyplot.savefig('bimodalGenerateWith16Threads1Rank.png')
 
 
 

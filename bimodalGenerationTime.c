@@ -3,25 +3,25 @@
 #include <string.h>
 #include <mpi.h>
 #include <getopt.h>
-
+#include <omp.h>
 
 int main(int argc, char ** argv){
 
 
-	int rank, numProc;
+	int rank, numProc, i;
 	double start, end, time;
 
-	  int arraySize = 100000000;
+	int arraySize = 100000000;
 
         MPI_Init(&argc, &argv);
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &numProc);
 	
 
-	  int * integers = (  int *) malloc(arraySize * 8);
+	int * integers = (  int *) malloc(arraySize * 8);
 
+	#pragma omp parallel for
 	start = MPI_Wtime();// Start Timing
-          int  i;
         for( i = 0; i < arraySize; i++){
                 integers[i] = i;
         }

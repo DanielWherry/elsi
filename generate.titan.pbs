@@ -4,11 +4,12 @@
 #PBS -N DoingTestsForGenerate
 #PBS -M wherrydh@ornl.gov
 #PBS -m e
-#PBS -l walltime=0:10:00,nodes=5
+#PBS -l walltime=0:05:00,nodes=80
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 cd $MEMBERWORK/stf007
-aprun -n 45 -N 9   ./generate.exe  > generate.$PBS_JOBID.txt
+export OMP_NUM_THREADS=16
+aprun -n 80 -N 1 -d $OMP_NUM_THREADS  ./generate.exe  > generate.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
-python bimodalGenerationTime.py -f generate.$PBS_JOBID.txt 
+python bimodalGraph.py -f generate.$PBS_JOBID.txt 

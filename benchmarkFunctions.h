@@ -6,6 +6,10 @@ typedef enum {
 	verify,
 	dontDoAnything
 	} Choice;
+typedef enum {
+	root,
+	notRoot
+	} rootOrNot;
 
 typedef struct {
 	double open;

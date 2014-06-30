@@ -15,7 +15,6 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 	
 	double start, end;
 	long long int i;
-	char rankID[4];
 	int err=0;	
 	Timing timerOfProcesses;
 
@@ -37,44 +36,59 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 	timerOfProcesses.array = end - start;
 
 	
-	int sizeOfSubComm = numProc / numIORanks;	
-	int* subCommArray;	
+	MPI_File outfile;
+	MPI_Status status;
 	MPI_Comm subComm;	
 	MPI_Group worldGroup, subGroup;
 	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
+	int sizeOfSubComm = numProc / numIORanks;	
+	int subCommArray[sizeOfSubComm];	
+	int rootRank = rank / sizeOfSubComm; 
+	int tempRank = rootRank * sizeOfSubComm;
+
+	rootOrNot rootChoice = notRoot;	
 
 	if(rank % sizeOfSubComm == 0){
-	
-		subCommArray = (int*) malloc(sizeof(int) * sizeOfSubComm);
-		strcpy(rankID, "root");
-		
-		subCommArray[0] = 0;
-		subCommArray[1] = 5;
-		//for(i = 0; i < 1; i++){
-		//	subCommArray[i] = rank;
-		//}
-		printf("%d\n",subCommArray[1]);
+		rootChoice = root;
 	}
-	MPI_Group_incl(worldGroup, sizeOfSubComm, subCommArray, &subGroup);printf("hey"); 
-	MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
-		
-
+            	
+	for(i = 0; i < sizeOfSubComm; i++){
+		subCommArray[i] = tempRank;
+		tempRank++;
+	}
 	
+	err = MPI_Group_incl(worldGroup, sizeOfSubComm, subCommArray, &subGroup);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD,12);
+	}
+
+	err = MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD,11);
+	}
+
+	long long int* integersToWrite = NULL;
+	if(rootChoice == root){
+		integersToWrite = (long long int*) malloc(sizeof(long long int) * sizeAssignedToRank * sizeOfSubComm); 
+	}	
 	
+	err = MPI_Gather(integers, sizeAssignedToRank, MPI_LONG_LONG_INT, integersToWrite, sizeAssignedToRank, MPI_LONG_LONG_INT, 0, subComm);	
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD,10);
+	}
 
-	char str[50];
-	sprintf(str, ".dat");
-	strcat(fileInfo.filename, str);
 
-	MPI_File outfile;
-	MPI_Status status;
-	MPI_Request request[numProc];
-	MPI_Offset disp =   sizeof(long long int) * rank * sizeAssignedToRank;
+	if(rootChoice == root){
+		char str[50];
+		sprintf(str, ".dat");
+		strcat(fileInfo.filename, str);
+	
+		printf("size\n");
+		int littleSize = sizeof(integersToWrite) / sizeof(integersToWrite[0]);		
 
-	if(strcmp(rankID,"root")){
-		MPI_File_delete(fileInfo.filename, MPI_INFO_NULL);
-
+		MPI_Offset disp =   sizeof(long long int) * rank * littleSize;
 		
+		printf("open\n");
 		start = MPI_Wtime();// Start timing
 		err = MPI_File_open(MPI_COMM_WORLD, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
 		if(err){
@@ -82,15 +96,12 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 		}
 		end = MPI_Wtime();// End timing
 		timerOfProcesses.open = end - start;
+		printf("view\n");
 	
-		long long int* integersToWrite = (long long int*) malloc(sizeof(long long int) *sizeAssignedToRank); 
-
-		MPI_Gather(integers, sizeAssignedToRank, MPI_LONG_LONG_INT, integersToWrite, sizeAssignedToRank, MPI_LONG_LONG_INT, rank, subComm);	
-		
 		MPI_File_set_view(outfile, disp, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-
+		printf("write\n");
 		start = MPI_Wtime();// Start Timing
-		err = MPI_File_write(outfile, integers, sizeAssignedToRank, MPI_LONG_LONG_INT, &status);
+		err = MPI_File_write(outfile, integersToWrite, littleSize, MPI_LONG_LONG_INT, &status);
 		if(err){
 			MPI_Abort(MPI_COMM_WORLD, 2);
 		}
@@ -98,17 +109,16 @@ void createFile(InfoAboutFile fileInfo, long long int integers[], int rank, long
 		timerOfProcesses.readOrWrite = end - start;
 		
 	}
-
 	
-
 	start = MPI_Wtime();//Start Timing
 	MPI_File_close(&outfile);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.close = end - start;
 
 
-	printCreateFile(&timerOfProcesses, rank, fileInfo.filesize);
+	free(integersToWrite);
 
+	printCreateFile(&timerOfProcesses, rank, fileInfo.filesize);
 
 
 }
