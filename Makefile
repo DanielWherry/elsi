@@ -24,6 +24,6 @@ striping-benchmark.rhea.exe: main.c createFile.o verifyFile.o benchmarkFunctions
 	cp striping-benchmark.rhea.exe $(MEMBERWORK)/stf007
 
 striping-benchmark.titan.exe: main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o
-	cc -o striping-benchmark.titan.exe main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o -mp -g 
+	cc -o striping-benchmark.titan.exe main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o -fopenmp -g 
 	cp striping-benchmark.titan.exe $(MEMBERWORK)/stf007
 
