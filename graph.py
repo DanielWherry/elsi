@@ -101,7 +101,7 @@ pyplot.title('Timing Report')
 pyplot.xlabel('Rank ID')
 pyplot.ylabel( 'Time(seconds)')
 pyplot.legend()
-pyplot.axis([rank[0], rank[-1], None, None])
+pyplot.axis([min(rank), max(rank), None, None])
 openFileName = 'OpenTime.' + str(JOB_ID) + '.png'
 pyplot.savefig(openFileName)
 
@@ -111,7 +111,7 @@ pyplot.title('Timing Report')
 pyplot.xlabel('Rank ID')
 pyplot.ylabel( 'Time(seconds)')
 pyplot.legend()
-pyplot.axis([rank[0], rank[-1], None, None])
+pyplot.axis([min(rank), max(rank), None, None])
 closeFileName = 'CloseTime.' + str(JOB_ID) + '.png'
 pyplot.savefig(closeFileName)
 
@@ -124,7 +124,7 @@ if choice == "The file is being verified":
     pyplot.xlabel('Rank ID')
     pyplot.ylabel( 'Time(seconds)')
     pyplot.legend()
-    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.axis([min(rank), max(rank), None, None])
     readFileName = 'ReadTime.' + str(JOB_ID) + '.png'
     pyplot.savefig(readFileName)
   
@@ -136,7 +136,7 @@ if choice == "The file is being verified":
     pyplot.xlabel('Rank ID')
     pyplot.ylabel( 'Time(seconds)')
     pyplot.legend()
-    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.axis([min(rank), max(rank), None, None])
     verifyFileName = 'VerifyTime.' + str(JOB_ID) + '.png'
     pyplot.savefig(verifyFileName)
 
@@ -156,7 +156,7 @@ if choice == "The file is being created":
     pyplot.xlabel('Rank ID')
     pyplot.ylabel( 'Time(seconds)')
     pyplot.legend()
-    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.axis([min(rank), max(rank), None, None])
     generateFileName = 'GenerateTime.' + str(JOB_ID) + '.png'
     pyplot.savefig(generateFileName)
 
@@ -168,7 +168,7 @@ if choice == "The file is being created":
     pyplot.xlabel('Rank ID')
     pyplot.ylabel( 'Time(seconds)')
     pyplot.legend()
-    pyplot.axis([rank[0], rank[-1], None, None])
+    pyplot.axis([min(rank), max(rank), None, None])
     writeFileName = 'WriteTime.' + str(JOB_ID) + '.png'
     pyplot.savefig(writeFileName)
 
