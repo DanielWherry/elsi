@@ -4,7 +4,7 @@
 #PBS -N striping-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:15:00,nodes=20
+#PBS -l walltime=0:05:00,nodes=5
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 
@@ -13,7 +13,7 @@ cd $MEMBERWORK/stf007
 rm integer.dat
 lfs setstripe --size 3m -c 16 integer.dat
 export OMP_NUM_THREADS=1
-aprun -n 320 -N 16 -d $OMP_NUM_THREADS ./striping-benchmark.titan.exe -s 100GB -n 25 -c integer  > striping-titan.$PBS_JOBID.txt
+aprun -n 80 -N 16 -d $OMP_NUM_THREADS ./striping-benchmark.titan.exe -s 100MB -n 11 -c integer  > striping-titan.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
 python graph.py -f striping-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES

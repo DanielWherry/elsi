@@ -22,7 +22,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	MpiInfo mpiInfo;
 	rootOrNot rootChoice = notRoot;
 
-	setMpiInfo(mpiInfo, numProc, numIORanks, rank, fileInfo.SIZE);
+	setMpiInfo(&mpiInfo, numProc, numIORanks, rank, fileInfo.SIZE);
 	
 	MPI_File outfile;
 	MPI_Status status;
@@ -32,60 +32,27 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
 
 	start = MPI_Wtime();// Start Timing
-	integers = setIntegerArray(fileInfo.SIZE, lowerBound, integers);
+	integers = setIntegerArray(mpiInfo.sizeAssignedToRank, lowerBound, integers);
 	end = MPI_Wtime();// End Timing
 	timerOfProcesses.array = end - start;
 	
 	if(rank % mpiInfo.sizeOfSubComm == 0){
 		rootChoice = root;
 	}
+
+	setSubCommArray(&mpiInfo, rank);
 	
-	if(mpiInfo.rootRank < mpiInfo.extraWork - mpiInfo.sizeOfSubComm){
-			
-		mpiInfo.subCommArray = (int*) malloc(sizeof(int) * mpiInfo.sizeOfSubComm + 1);
-		mpiInfo.rootRank = rank / (mpiInfo.sizeOfSubComm + 1);
-		mpiInfo.tempRank = mpiInfo.rootRank * (mpiInfo.sizeOfSubComm + 1);
-
-		for(i = 0; i < mpiInfo.sizeOfSubComm + 1; i++){
-			mpiInfo.subCommArray[i] = mpiInfo.tempRank;
-			mpiInfo.tempRank++;
-			printf("CommArray: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo.subCommArray[i], mpiInfo.rootRank, mpiInfo.offset );
-		}
-
-		err = MPI_Group_incl(worldGroup, mpiInfo.sizeOfSubComm + 1, mpiInfo.subCommArray, &subGroup);
-		if(err){
-			MPI_Abort(MPI_COMM_WORLD,20);
-		}
-		err = MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
-		if(err){
-			MPI_Abort(MPI_COMM_WORLD,11);
-		}
 	
-	}else if(mpiInfo.rootRank >= mpiInfo.extraWork - mpiInfo.sizeOfSubComm){
-		mpiInfo.subCommArray = (int*) malloc(sizeof(int) * mpiInfo.sizeOfSubComm);
-		mpiInfo.offset = mpiInfo.rootRank - (mpiInfo.extraWork - mpiInfo.sizeOfSubComm);
-
-		mpiInfo.rootRank = rank / (mpiInfo.sizeOfSubComm + 1);
-		mpiInfo.tempRank = (mpiInfo.rootRank * (mpiInfo.sizeOfSubComm + 1)) - mpiInfo.offset;
-		
-		for(i = 0; i < mpiInfo.sizeOfSubComm; i++){
-			mpiInfo.subCommArray[i] = mpiInfo.tempRank;
-			mpiInfo.tempRank++;
-			printf("CommArray: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo.subCommArray[i], mpiInfo.rootRank, mpiInfo.offset );
-		}
-
-		err = MPI_Group_incl(worldGroup, mpiInfo.sizeOfSubComm, mpiInfo.subCommArray, &subGroup);
-		if(err){
-			MPI_Abort(MPI_COMM_WORLD,12);
-		}
-		err = MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
-		if(err){
-			MPI_Abort(MPI_COMM_WORLD,11);
-		}
-		
+	err = MPI_Group_incl(worldGroup, mpiInfo.sizeOfSubComm, mpiInfo.subCommArray, &subGroup);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD,12);
 	}
-	
-	mpiInfo.ioArray = setIOArray(mpiInfo, numIORanks); 
+	err = MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm);
+	if(err){
+		MPI_Abort(MPI_COMM_WORLD,11);
+	}
+		
+	setIOArray(&mpiInfo, numIORanks); 
 		
 	err = MPI_Group_incl(worldGroup, numIORanks, mpiInfo.ioArray, &ioGroup);
 	if(err){
@@ -97,7 +64,6 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 		MPI_Abort(MPI_COMM_WORLD,14);
 	}
 	
-	mpiInfo.receiveCount = 0;
 	if(rootChoice == root){
 		mpiInfo.integersToWrite = (long long int*) malloc(sizeof(long long int) * mpiInfo.sizeAssignedToRank * mpiInfo.sizeOfSubComm); 
 		mpiInfo.receiveCount = mpiInfo.sizeAssignedToRank;
@@ -138,6 +104,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 		start = MPI_Wtime();//Start Timing
 		MPI_File_close(&outfile);
 		end = MPI_Wtime();// End Timing
+
 		timerOfProcesses.close = end - start;
 	
 		printCreateFile(&timerOfProcesses, rank, fileInfo.filesize);
@@ -172,49 +139,91 @@ long long int* setIntegerArray(long long int size, long long int lowerBound, lon
 	return integers;
 }
 //
-void setMpiInfo(MpiInfo mpiInfo, int numProc, int numIORanks, int rank, int size){ 
+void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, int size){ 
 	
-	mpiInfo.sizeAssignedToRank = setSizeAssignedToRank(size, numProc, mpiInfo, rank);	
-	mpiInfo.sizeOfSubComm = numProc / numIORanks;
-	mpiInfo.extraWork = numProc % numIORanks;	
+	mpiInfo->sizeOfSubComm = numProc / numIORanks;
+	mpiInfo->extraWork = numProc % numIORanks;	
 		
-	if(mpiInfo.extraWork == 0){	
-		mpiInfo.rootRank = rank / mpiInfo.sizeOfSubComm;
-		mpiInfo.tempRank = mpiInfo.rootRank * mpiInfo.sizeOfSubComm; 
+	if(mpiInfo->extraWork == 0){	
+		mpiInfo->rootRank = rank / mpiInfo->sizeOfSubComm;
+		mpiInfo->tempRank = mpiInfo->rootRank * mpiInfo->sizeOfSubComm; 
 	}else{
-		mpiInfo.rootRank = rank / (mpiInfo.sizeOfSubComm + 1);
-		mpiInfo.tempRank = mpiInfo.rootRank * (mpiInfo.sizeOfSubComm + 1);
+		mpiInfo->rootRank = rank / (mpiInfo->sizeOfSubComm + 1);
+		mpiInfo->tempRank = mpiInfo->rootRank * (mpiInfo->sizeOfSubComm + 1);
  	}
+	mpiInfo->sizeAssignedToRank = setSizeAssignedToRank(size, numProc, *mpiInfo, rank);	
+	mpiInfo->offset = mpiInfo->rootRank - abs(mpiInfo->extraWork - mpiInfo->sizeOfSubComm);
+	mpiInfo->switchSubCommLength = abs(mpiInfo->extraWork - mpiInfo->sizeOfSubComm);
+	mpiInfo->tempIORanks = 0;
+	mpiInfo->littleSize = 0;
+	mpiInfo->receiveCount = 0; 
 
 }
-int* setIOArray(MpiInfo mpiInfo, int numIORanks){
+void setIOArray(MpiInfo* mpiInfo, int numIORanks){
+	mpiInfo->ioArray = (int*) malloc(sizeof(int) * numIORanks);
 	int i;
 
-	if(mpiInfo.extraWork == 0){
+	if(mpiInfo->extraWork == 0){
 		for(i = 0; i < numIORanks; i++){
-			mpiInfo.ioArray[i] = mpiInfo.tempIORanks;
-			mpiInfo.tempIORanks += mpiInfo.sizeOfSubComm;
+			mpiInfo->ioArray[i] = mpiInfo->tempIORanks;
+			mpiInfo->tempIORanks += mpiInfo->sizeOfSubComm;
 		}
 		
 	}else{
-		mpiInfo.switchSubCommLength = mpiInfo.extraWork - mpiInfo.sizeOfSubComm;
-		for(i = 0; i < mpiInfo.switchSubCommLength + 1; i++){
-			mpiInfo.ioArray[i] = mpiInfo.tempIORanks;
-			mpiInfo.tempIORanks += (mpiInfo.sizeOfSubComm + 1);
-			//printf("mpiInfo.ioArray: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo.ioArray[i], mpiInfo.rootRank, mpiInfo.offset );
+		for(i = 0; i < mpiInfo->switchSubCommLength + 1; i++){
+			mpiInfo->ioArray[i] = mpiInfo->tempIORanks;
+			mpiInfo->tempIORanks += (mpiInfo->sizeOfSubComm);
+			printf("ioArray: %d, rootRank: %d\n", mpiInfo->ioArray[i], mpiInfo->rootRank);
 		}
-		for(i = mpiInfo.switchSubCommLength + 1; i < numIORanks; i++){
-			mpiInfo.ioArray[i] = mpiInfo.tempIORanks;
-			mpiInfo.tempIORanks += mpiInfo.sizeOfSubComm;
-			//printf("mpiInfo.ioArray: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo.ioArray[i], mpiInfo.rootRank, mpiInfo.offset );
+		for(i = mpiInfo->switchSubCommLength + 1; i < numIORanks; i++){
+			mpiInfo->ioArray[i] = mpiInfo->tempIORanks;
+			mpiInfo->tempIORanks += (mpiInfo->sizeOfSubComm - 1);
+			printf("ioArray: %d, rootRank: %d\n", mpiInfo->ioArray[i], mpiInfo->rootRank);
 		}
 	}
 	
-	return mpiInfo.ioArray;
 }
+void setSubCommArray(MpiInfo* mpiInfo, int rank){
+	int i;
+	if(mpiInfo->extraWork == 0){
+			
+		mpiInfo->subCommArray = (int*) malloc(sizeof(int) * mpiInfo->sizeOfSubComm);
+		mpiInfo->rootRank = rank / (mpiInfo->sizeOfSubComm);
+		mpiInfo->tempRank = mpiInfo->rootRank * (mpiInfo->sizeOfSubComm);
+
+		for(i = 0; i < mpiInfo->sizeOfSubComm; i++){
+			mpiInfo->subCommArray[i] = mpiInfo->tempRank;
+			(mpiInfo->tempRank)++;
+			//printf("subArray: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo->subCommArray[i], mpiInfo->rootRank, mpiInfo->offset );
+		}
+	
+	} else if(mpiInfo->rootRank < abs(mpiInfo->extraWork - mpiInfo->sizeOfSubComm)){
+			
+		(mpiInfo->sizeOfSubComm)++;
+		mpiInfo->subCommArray = (int*) malloc(sizeof(int) * mpiInfo->sizeOfSubComm);
+		mpiInfo->rootRank = rank / (mpiInfo->sizeOfSubComm);
+		mpiInfo->tempRank = mpiInfo->rootRank * (mpiInfo->sizeOfSubComm);
+
+		for(i = 0; i < mpiInfo->sizeOfSubComm; i++){
+			mpiInfo->subCommArray[i] = mpiInfo->tempRank;
+			(mpiInfo->tempRank)++;
+			//printf("subArrayLesser: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo->subCommArray[i], mpiInfo->rootRank, mpiInfo->offset );
+		}
+
+	}else if(mpiInfo->rootRank >= abs(mpiInfo->extraWork - mpiInfo->sizeOfSubComm)){
+		
+		mpiInfo->subCommArray = (int*) malloc(sizeof(int) * mpiInfo->sizeOfSubComm);
+
+		mpiInfo->rootRank = rank / (mpiInfo->sizeOfSubComm + 1);
+		mpiInfo->tempRank = (mpiInfo->rootRank * (mpiInfo->sizeOfSubComm + 1)) - mpiInfo->offset;
+		
+		for(i = 0; i < mpiInfo->sizeOfSubComm; i++){
+			mpiInfo->subCommArray[i] = mpiInfo->tempRank;
+			(mpiInfo->tempRank)++;
+			//printf("subArrayGreater: %d, mpiInfo.rootRank: %d, mpiInfo.offset: %d\n", mpiInfo->subCommArray[i], mpiInfo->rootRank, mpiInfo->offset );
+		}
+	}
 
 
 
-
-
-
+}
