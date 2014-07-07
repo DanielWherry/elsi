@@ -65,7 +65,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	}
 	
 	if(rootChoice == root){
-		mpiInfo.integersToWrite = (long long int*) malloc(sizeof(long long int) * mpiInfo.sizeAssignedToRank * mpiInfo.sizeOfSubComm); 
+		mpiInfo.integersToWrite = (long long int*) malloc(sizeof(long long int) * mpiInfo.sizeAssignedToRank); 
 		mpiInfo.receiveCount = mpiInfo.sizeAssignedToRank;
 	}	
 	
@@ -170,12 +170,12 @@ void setIOArray(MpiInfo* mpiInfo, int numIORanks){
 		}
 		
 	}else{
-		for(i = 0; i < mpiInfo->switchSubCommLength + 1; i++){
+		for(i = 0; i < mpiInfo->switchSubCommLength; i++){
 			mpiInfo->ioArray[i] = mpiInfo->tempIORanks;
 			mpiInfo->tempIORanks += (mpiInfo->sizeOfSubComm);
 			printf("ioArray: %d, rootRank: %d\n", mpiInfo->ioArray[i], mpiInfo->rootRank);
 		}
-		for(i = mpiInfo->switchSubCommLength + 1; i < numIORanks; i++){
+		for(i = mpiInfo->switchSubCommLength; i < numIORanks; i++){
 			mpiInfo->ioArray[i] = mpiInfo->tempIORanks;
 			mpiInfo->tempIORanks += (mpiInfo->sizeOfSubComm - 1);
 			printf("ioArray: %d, rootRank: %d\n", mpiInfo->ioArray[i], mpiInfo->rootRank);
