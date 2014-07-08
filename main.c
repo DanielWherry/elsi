@@ -66,18 +66,15 @@ int main(int argc, char ** argv){
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
 	long long int sizeForRank = upperBound - lowerBound + 1;
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
-
 	if(whatToDoToFile == create){
-
 		createFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
-	
-	}else if(whatToDoToFile == verify){
 
+	}else if(whatToDoToFile == verify){
 		verifyFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
-	
+
 	}else{
-	
 		printf("Robert is making me change this. He must have made a mistake.\n");
+
 	}
 
 	MPI_Finalize();	

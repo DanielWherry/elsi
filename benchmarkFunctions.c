@@ -57,7 +57,7 @@ void setBoundsForRanks(int rank, int numProc, long long int arraySize, long long
 	}else{
 		finalAmount = baseAmount;
 		*lowerBound = finalAmount * rank + extraWork;
-		*upperBound = *lowerBound + (baseAmount - 1);
+		*upperBound = *lowerBound + baseAmount;
 	}
 
 }

@@ -11,18 +11,16 @@ typedef struct {
 	int sizeOfSubComm;	
 	int* subCommArray;
 	int* ioArray;
-	int tempIORanks;
 	int extraWork;
-	int rootRank;
-	int tempRank;
+	int groupID;
 	int offset;
 	} MpiInfo;
 
 void createFile(InfoAboutFile fileInfo, long long int* , int , long long int, int, int numIORanks);	
 void printCreateFile(Timing*, int, char*);
-long long int setSizeAssignedToRank(int size, int numProc, MpiInfo mpiInfo, int rank);
-long long int* setIntegerArray(long long int size, long long int lowerBound, long long int* integers);
-void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, int size);
+long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpiInfo, int rank);
+void setIntegerArray(long long int size, long long int lowerBound, long long int* integers);
+void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long long int size);
 void setIOArray(MpiInfo* mpiInfo, int numIORanks);
 void setSubCommArray(MpiInfo* mpiInfo, int rank);
 
