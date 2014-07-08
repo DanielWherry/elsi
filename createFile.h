@@ -13,6 +13,7 @@ typedef struct {
 	int* ioArray;
 	int tempIORanks;
 	int extraWork;
+	int groupID;
 	int rootRank;
 	int tempRank;
 	int offset;
