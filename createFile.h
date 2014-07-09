@@ -8,12 +8,13 @@ typedef struct {
 	long long int receiveCount;
 	long long int littleSize;
 	int switchSubCommLength;
-	int sizeOfSubComm;	
+	int sizeOfNormalSubComm;
+	int sizeOfLargeSubComm;
+	int sizeOfSmallSubComm;	
 	int* subCommArray;
 	int* ioArray;
 	int extraWork;
 	int groupID;
-	int offset;
 	} MpiInfo;
 
 void createFile(InfoAboutFile fileInfo, long long int* , int , long long int, int, int numIORanks);	

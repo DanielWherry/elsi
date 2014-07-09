@@ -73,7 +73,7 @@ int main(int argc, char ** argv){
 		verifyFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
 
 	}else{
-		printf("Robert is making me change this. He must have made a mistake.\n");
+		printf("See github.com/DanielWherry/striping-benchmark for usage information.\n");
 
 	}
 
