@@ -20,7 +20,9 @@ typedef struct {
 
 void createFile(InfoAboutFile fileInfo, long long int* , int , long long int, int, int numIORanks);	
 void printCreateFile(Timing*, int, char*);
+int setSizeOfComm(MpiInfo mpiInfo);
 long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpiInfo, int rank);
+void setWriteArray(MpiInfo* mpiInfo, int sizeOfComm, rootOrNot rootChoice);
 void setIntegerArray(long long int size, long long int lowerBound, long long int* integers);
 void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long long int size);
 void setIOArray(MpiInfo* mpiInfo, int numIORanks);
