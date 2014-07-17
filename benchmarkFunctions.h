@@ -12,10 +12,10 @@ typedef enum {
 	} rootOrNot;
 
 typedef struct {
-	double open;
-	double array;
-	double readOrWrite;
-	double close;
+	double openTime;
+	double generateArrayTime;
+	double readOrWriteTime;
+	double closeTime;
 	} Timing;
 
 typedef struct {
