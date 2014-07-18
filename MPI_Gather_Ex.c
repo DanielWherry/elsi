@@ -122,6 +122,14 @@ int main(int argc, char** argv){
 			}printf("1\n");
 			MPI_Gather(sendBuf, size/ 8, MPI_LONG_LONG_INT, recvBuf, size / 8, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
 			printf("2\n");
+
+
+			//MPI_File_open(MPI_COMM_WORLD, "MPI_Gather.dat", MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
+			//displacement = sizeof(long long int) * rank * size;
+			//MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+			//MPI_File_seek(outfile, offset, MPI_SEEK_SET);
+			//MPI_File_write(outfile, recvBuf, size / 8, MPI_LONG_LONG_INT, &status);
+			//MPI_File_close(&outfile);
 		}
 		for(i = numChunks; i < numChunks + 1; i++){
 			long long int j;
