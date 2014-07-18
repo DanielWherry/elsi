@@ -14,25 +14,25 @@ int main(int argc, char** argv){
 	long long int i;
 	long long int size;
 	long long int* sendBuf;
+	long long int* recvBuf;
 	int ranksPerNode = numProc / numNodes;
 	char sizeOfFile[] = "50GB";
 
 	if(ranksPerNode == 1){
-		size = 26843545600; //bytes,  25 GB	
+		size = (13543545600 * 2) / (numProc * 2); //bytes,  25 GB	
 			
-	}else if(ranksPerNode == 4){
-		size = 7000000000;//7516192768; //bytes, 7 GB, actually ≈ 6.5
+	}else if(ranksPerNode > 1 && ranksPerNode <=  4){
+		size = 7500000000/ (numProc * 2);//7516192768; //bytes, 7 GB, actually ≈ 3.5
 
-	}else if(ranksPerNode == 8){
-		size = 3500000000; //bytes, 3.5 GB
+	}else if(ranksPerNode > 4 && ranksPerNode <= 8){
+		size = 3500000000 / (numProc * 2); //bytes, 1.5 GB
 	
-	}else if(ranksPerNode == 16){
-		size = 1500000000; //bytes, 1.75 GB	
+	}else if(ranksPerNode > 8 && ranksPerNode <= 16){
+		size = 1500000000/ (numProc); //bytes, .75GB	
 
-	}else{
-		size = 1500000000; //bytes, 1.75 GB	
 
 	}
+
 	long long int sizeOfFileWithoutLetters, sizeOfArray;
 	char* pch = strchr(sizeOfFile, 'K');
 	if(pch != NULL){
@@ -87,11 +87,16 @@ int main(int argc, char** argv){
 	long long int sizeForRank = upperBound - lowerBound + 1;
 	long long int numChunks = sizeOfFileWithoutLetters / size;
 	printf("SizeNoLetter: %lld, size: %lld\n",sizeOfFileWithoutLetters, size);
+	sendBuf = (long long int*) malloc(size);
+	if(rank == 0){
+		recvBuf = (long long int*) malloc(size * numProc);
+	}else{
+		recvBuf = NULL;
+	}	
 	
 	if(sizeOfFileWithoutLetters % size == 0){		
 	
 
-		sendBuf = (long long int*) malloc(size);
 		for(i = 0; i < numChunks; i++){
 			long long int j;
 			long long int h = i * size;
@@ -99,12 +104,14 @@ int main(int argc, char** argv){
 				sendBuf[j] = h;
 				h++;
 			}
-//		printf("OuterForLoop: %lld, InnerForLoop: %lld, numChunks: %d\n", i, j, numChunks);
+			printf("yodel\n");
+						
+			MPI_Gather(sendBuf, size, MPI_LONG_LONG_INT, recvBuf, size, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
+		
 		}
-	}else if(sizeOfArray % size != 0){
+	}else if(sizeOfFileWithoutLetters % size != 0){
 		int numNormalChunks = sizeOfFileWithoutLetters / size;
 		int sizeOfExtraChunk = sizeOfFileWithoutLetters % size;
-		sendBuf = (long long int*) malloc(size);
 
 		for(i = 0; i < numChunks; i++){
 			long long int j;
@@ -112,7 +119,9 @@ int main(int argc, char** argv){
 			for(j = 0; j < size / 8; j++){
 				sendBuf[j] = h;
 				h++;
-			}
+			}printf("1\n");
+			MPI_Gather(sendBuf, size/ 8, MPI_LONG_LONG_INT, recvBuf, size / 8, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
+			printf("2\n");
 		}
 		for(i = numChunks; i < numChunks + 1; i++){
 			long long int j;
@@ -121,8 +130,11 @@ int main(int argc, char** argv){
 				sendBuf[j] = h;
 				h++;
 			}
+			printf("yo\n");
+			MPI_Gather(sendBuf, sizeOfExtraChunk / 8 , MPI_LONG_LONG_INT, recvBuf, sizeOfExtraChunk / 8, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
 		}
 	} 
+
 	//long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 
 	// How much memory that can be allocated by each rank due to the number of ranks per node.
@@ -139,6 +151,7 @@ int main(int argc, char** argv){
 
 	//MPI_Gather(sendBuf, size, MPI_LONG_LONG_INT, recvBuf, size, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
 	free(sendBuf);
+	free(recvBuf);
 	MPI_Finalize();
 
 

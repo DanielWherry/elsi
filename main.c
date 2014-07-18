@@ -53,15 +53,10 @@ int main(int argc, char ** argv){
 
 				whatToDoToFile = verify;	
 				strcpy(fileInfo.filename,optarg); 
-
 				break;
 
 		}
-
-
 	}
-
-	
 
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
 	long long int sizeForRank = upperBound - lowerBound + 1;
