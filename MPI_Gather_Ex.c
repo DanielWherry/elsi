@@ -18,6 +18,21 @@ int main(int argc, char** argv){
 	int ranksPerNode = numProc / numNodes;
 	char sizeOfFile[] = "50GB";
 
+	MPI_File outfile;
+	MPI_Status status;
+	MPI_Offset offset, displacement;
+	MPI_Group worldGroup, ioGroup;
+	MPI_Comm ioComm;
+
+	int ioCommArray[1] = {0};	
+
+	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
+	printf("1\n");	
+	MPI_Group_incl(worldGroup, 1, ioCommArray, &ioGroup);
+	printf("2\n");	
+	MPI_Comm_create(MPI_COMM_WORLD, ioGroup, &ioComm); 
+	printf("3\n");	
+
 	if(ranksPerNode == 1){
 		size = (13543545600 * 2) / (numProc * 2); //bytes,  25 GB	
 			
@@ -90,6 +105,8 @@ int main(int argc, char** argv){
 	sendBuf = (long long int*) malloc(size);
 	if(rank == 0){
 		recvBuf = (long long int*) malloc(size * numProc);
+		MPI_File_open(ioComm, "MPI_Gather.dat", MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
+
 	}else{
 		recvBuf = NULL;
 	}	
@@ -106,8 +123,9 @@ int main(int argc, char** argv){
 			}
 			printf("yodel\n");
 						
-			MPI_Gather(sendBuf, size, MPI_LONG_LONG_INT, recvBuf, size, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
+			MPI_Gather(sendBuf, size / 8, MPI_LONG_LONG_INT, recvBuf, size / 8, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
 		
+			MPI_File_write(outfile, recvBuf, size / 8, MPI_LONG_LONG_INT, &status);
 		}
 	}else if(sizeOfFileWithoutLetters % size != 0){
 		int numNormalChunks = sizeOfFileWithoutLetters / size;
@@ -124,12 +142,10 @@ int main(int argc, char** argv){
 			printf("2\n");
 
 
-			//MPI_File_open(MPI_COMM_WORLD, "MPI_Gather.dat", MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile);
 			//displacement = sizeof(long long int) * rank * size;
 			//MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
 			//MPI_File_seek(outfile, offset, MPI_SEEK_SET);
-			//MPI_File_write(outfile, recvBuf, size / 8, MPI_LONG_LONG_INT, &status);
-			//MPI_File_close(&outfile);
+			MPI_File_write(outfile, recvBuf, size / 8, MPI_LONG_LONG_INT, &status);
 		}
 		for(i = numChunks; i < numChunks + 1; i++){
 			long long int j;
@@ -140,8 +156,13 @@ int main(int argc, char** argv){
 			}
 			printf("yo\n");
 			MPI_Gather(sendBuf, sizeOfExtraChunk / 8 , MPI_LONG_LONG_INT, recvBuf, sizeOfExtraChunk / 8, MPI_LONG_LONG_INT, 0, MPI_COMM_WORLD);
+	
+			MPI_File_write(outfile, recvBuf, sizeOfExtraChunk / 8, MPI_LONG_LONG_INT, &status);
 		}
 	} 
+		if(rank == 0){
+			MPI_File_close(&outfile);
+		}
 
 	//long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 
