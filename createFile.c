@@ -42,7 +42,6 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	setIOArray(&mpiInfo, numIORanks); 
 	setSubCommArray(&mpiInfo, rank);
 	sizeOfComm = setSizeOfComm(mpiInfo);
-	setWriteArray(&mpiInfo, sizeOfComm, rootChoice);		
 	
 	MPI_Comm_group(MPI_COMM_WORLD, &worldGroup);
 	
@@ -52,13 +51,20 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	TestForError(MPI_Group_incl(worldGroup, sizeOfComm, mpiInfo.subCommArray, &subGroup),2)
 	TestForError(MPI_Comm_create(MPI_COMM_WORLD, subGroup, &subComm),3)
 	
-	TestForError(MPI_Gather(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, 0, subComm),4)
+	free(mpiInfo.subCommArray);
+	free(mpiInfo.ioArray);
+	
+	setWriteArray(&mpiInfo, sizeOfComm, rootChoice);		
+	TestForError(MPI_Gather(integers, mpiInfo.sizeAssignedToRank , MPI_LONG_LONG_INT, mpiInfo.integersToWrite, mpiInfo.receiveCount , MPI_LONG_LONG_INT, 0, subComm),4)
+	free(integers);
 
 	if(rootChoice == root){
 		setFileName(&fileInfo);
 		
-		displacement = setDisplacementForFileView(rank, mpiInfo.sizeAssignedToRank);
-		
+		displacement = setDisplacementForFileView(mpiInfo, sizeOfComm, rank);
+		printf("rank:%d, Disp: %lld\n",rank, displacement);
+		MPI_Barrier(ioComm);		
+
 		Timer(
 			TestForError(MPI_File_open(ioComm, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile),5),
 			timerOfProcesses.openTime
@@ -80,23 +86,19 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	}
 
 	free(mpiInfo.integersToWrite);
-	free(mpiInfo.subCommArray);
-	free(mpiInfo.ioArray);
 }
-
-long long int setDisplacementForFileView(int rank, long long int size){
-	return sizeof(long long int) * rank * size;
+MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank){
+	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank / 4) * sizeOfComm;
+	return sizeOfDisplacement;
 }
-
 void setFileName(InfoAboutFile* fileInfo){
 	char str[50];
 	sprintf(str, ".dat");
 	strcat(fileInfo->filename, str);
-
 }
 void setWriteArray(MpiInfo* mpiInfo, int sizeOfComm, rootOrNot rootChoice){
 	if(rootChoice == root){
-		mpiInfo->integersToWrite = (long long int*) malloc(sizeof(long long int) * mpiInfo->sizeAssignedToRank * sizeOfComm); 
+		mpiInfo->integersToWrite = (long long int*) malloc(sizeof(long long int) * (mpiInfo->sizeAssignedToRank) * sizeOfComm); 
 		mpiInfo->receiveCount = mpiInfo->sizeAssignedToRank;
 	}else{
 		mpiInfo->integersToWrite = NULL;
@@ -110,15 +112,15 @@ int setSizeOfComm(MpiInfo mpiInfo){
 		return mpiInfo.sizeOfLargeSubComm;
 	}else if(mpiInfo.groupID >= mpiInfo.switchSubCommLength){
 		return mpiInfo.sizeOfSmallSubComm;
-}
+	}
 	
 }
 //
 long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpiInfo, int rank){
-	if(rank < mpiInfo.extraWork){
-		return  (size / numProc) + 1;
+	if(rank < mpiInfo.otherExtraWork){
+		return  ((size / numProc) + 1) * 4;
 	}else{
-		return size / numProc;
+		return (size / numProc) * 4;
 	}
 }
 //
@@ -129,16 +131,17 @@ void setIntegerArray(long long int size, long long int lowerBound, long long int
 		for( i = 0; i < size; i++){
 			integers[i] = lowerBound + i;
 		}
+		printf("size in createFile.c: %lld\n",size );
 }
-//
+//CHECK THIS FUNCTION FOR EXTRAWORK. EXTRAWORK NOT CORRECT MAYBE. NEED 2 SEPARATE EXTRAWORKS. NAME BETTER
 void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long long int size){ 
 	mpiInfo->sizeOfNormalSubComm = numProc / numIORanks;
 	mpiInfo->sizeOfLargeSubComm = (numProc / numIORanks) + 1;
 	mpiInfo->sizeOfSmallSubComm = mpiInfo->sizeOfNormalSubComm;
+	mpiInfo->otherExtraWork = size % numProc;
 	mpiInfo->extraWork = numProc % numIORanks;	
 	mpiInfo->sizeAssignedToRank = setSizeAssignedToRank(size, numProc, *mpiInfo, rank);	
 	mpiInfo->switchSubCommLength = numProc + (numIORanks * (1 - (mpiInfo->sizeOfLargeSubComm)));
-	mpiInfo->littleSize = 0;
 	setGroupID(rank, mpiInfo);		
 	setRootOfGroup(rank, mpiInfo);	
 }
@@ -181,8 +184,6 @@ void setIOArray(MpiInfo* mpiInfo, int numIORanks){
 		}
 	}
 }
-
-
 void setSubCommArray(MpiInfo* mpiInfo, int rank){
 	int i;
 

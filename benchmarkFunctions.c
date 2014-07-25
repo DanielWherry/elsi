@@ -26,7 +26,7 @@ long long int setSize(char* commandLineArgument){
 		size = atoi(sizeInString);
 		size *= 1073741824;// Right hand side is # of bytes in Gigabyte
 		sizeOfArray = size / 8;
-	}
+	} 
 	else if(strchr(commandLineArgument, 'T') != NULL){
 		sizeInString = strtok(commandLineArgument, "T");
 		size = atoi(sizeInString);

@@ -59,7 +59,8 @@ int main(int argc, char ** argv){
 	}
 
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
-	long long int sizeForRank = upperBound - lowerBound + 1;
+	long long int sizeForRank = (upperBound - lowerBound) * 4;
+	printf("Size in main.c: %lld\n", sizeForRank);
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 	if(whatToDoToFile == create){
 		createFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
@@ -73,7 +74,6 @@ int main(int argc, char ** argv){
 	}
 
 	MPI_Finalize();	
-	free(integers);
 	return 0;
 
 }

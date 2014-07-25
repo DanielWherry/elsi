@@ -1,12 +1,13 @@
 #ifndef CREATEFILE_H_INCLUDED
 #define CREATEFILE_H_INCLUDED
 #include "benchmarkFunctions.h"
+#include "mpi.h"
 
 typedef struct {
 	long long int* integersToWrite;
 	long long int sizeAssignedToRank;
 	long long int receiveCount;
-	long long int littleSize;
+	long long int otherExtraWork;
 	int switchSubCommLength;
 	int sizeOfNormalSubComm;
 	int sizeOfLargeSubComm;
@@ -28,7 +29,7 @@ void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long lo
 void setIOArray(MpiInfo* mpiInfo, int numIORanks);
 void setSubCommArray(MpiInfo* mpiInfo, int rank);
 void setFileName(InfoAboutFile* fileInfo);
-long long int setDisplacementForFileView(int rank, long long int size);
+MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank);
 void setGroupID(int rank, MpiInfo* mpiInfo);
 void setRootOfGroup(int rank, MpiInfo* mpiInfo);
 
