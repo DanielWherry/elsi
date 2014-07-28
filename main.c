@@ -59,7 +59,7 @@ int main(int argc, char ** argv){
 	}
 
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
-	long long int sizeForRank = (upperBound - lowerBound) * 4;
+	long long int sizeForRank = (upperBound - lowerBound) * 8;
 	printf("Size in main.c: %lld\n", sizeForRank);
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 	if(whatToDoToFile == create){

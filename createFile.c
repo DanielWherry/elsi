@@ -88,7 +88,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	free(mpiInfo.integersToWrite);
 }
 MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank){
-	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank / 4) * sizeOfComm;
+	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank);
 	return sizeOfDisplacement;
 }
 void setFileName(InfoAboutFile* fileInfo){
@@ -118,9 +118,9 @@ int setSizeOfComm(MpiInfo mpiInfo){
 //
 long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpiInfo, int rank){
 	if(rank < mpiInfo.otherExtraWork){
-		return  ((size / numProc) + 1) * 4;
+		return  ((size / numProc) + 1) * mpiInfo.sizeOfLargeSubComm;
 	}else{
-		return (size / numProc) * 4;
+		return (size / numProc) * mpiInfo.sizeOfNormalSubComm;
 	}
 }
 //
