@@ -69,27 +69,14 @@ while true; do
 	 ;;
       -f|--filename)
          shift;
+	 shift;
          if [ -n "$1" ]; then
 	    FILENAME=$1;
-	 #   shift;
  	 fi
-	 #break;
-	 ;;
-       --)
-	 shift;
 	 break;
 	 ;;
    esac
 done
-#STRIPESIZE=3m
-#STRIPECOUNT=16
-#NUMBER_OF_OMP_THREADS=1
-#TOTAL_NUMBER_OF_RANKS=160
-#RANKS_PER_NODE=16
-#NUMBER_OF_NODES=10
-#SIZE_OF_FILE=10GB
-#NUMBER_OF_IO_RANKS=10
-#FILENAME=integer
 
 echo "
 #!/bin/bash
