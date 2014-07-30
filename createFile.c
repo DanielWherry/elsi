@@ -34,7 +34,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 		setIntegerArray(mpiInfo.sizeAssignedToRank, lowerBound, integers), 
 		timerOfProcesses.generateArrayTime
 	);
-
+	
 	if(rank == mpiInfo.rootOfGroup){
 		rootChoice = root;
 	}
@@ -55,7 +55,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	free(mpiInfo.ioArray);
 	
 	setWriteArray(&mpiInfo, sizeOfComm, rootChoice);		
-	TestForError(MPI_Gather(integers, mpiInfo.sizeAssignedToRank , MPI_LONG_LONG_INT, mpiInfo.integersToWrite, mpiInfo.receiveCount , MPI_LONG_LONG_INT, 0, subComm),4)
+	TestForError(MPI_Gather(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, mpiInfo.integersToWrite, mpiInfo.receiveCount , MPI_LONG_LONG_INT, 0, subComm),4)
 	free(integers);
 
 	if(rootChoice == root){
@@ -98,7 +98,9 @@ void setFileName(InfoAboutFile* fileInfo){
 }
 void setWriteArray(MpiInfo* mpiInfo, int sizeOfComm, rootOrNot rootChoice){
 	if(rootChoice == root){
-		mpiInfo->integersToWrite = (long long int*) malloc(sizeof(long long int) * (mpiInfo->sizeAssignedToRank) * sizeOfComm); 
+		long long int sizeOfWriteArray = sizeof(long long int) * (mpiInfo->sizeAssignedToRank) * sizeOfComm;
+		printf("size of write array: %lld\n", sizeOfWriteArray);
+		mpiInfo->integersToWrite = (long long int*) malloc(sizeOfWriteArray); 
 		mpiInfo->receiveCount = mpiInfo->sizeAssignedToRank;
 	}else{
 		mpiInfo->integersToWrite = NULL;
@@ -118,9 +120,10 @@ int setSizeOfComm(MpiInfo mpiInfo){
 //
 long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpiInfo, int rank){
 	if(rank < mpiInfo.otherExtraWork){
-		return  ((size / numProc) + 1) * mpiInfo.sizeOfLargeSubComm;
+		return  (size / numProc) + 1;
 	}else{
-		return (size / numProc) * mpiInfo.sizeOfNormalSubComm;
+		printf("size: %lld\n", size / numProc);
+		return size / numProc;
 	}
 }
 //

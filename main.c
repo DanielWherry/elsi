@@ -36,6 +36,7 @@ int main(int argc, char ** argv){
 				
 				strcpy(fileInfo.filesize,optarg);
                                 fileInfo.SIZE = setSize(optarg);
+				printf("size in case s: %lld\n", fileInfo.SIZE);
 				break;
 
 			case 'n' : 
@@ -59,7 +60,7 @@ int main(int argc, char ** argv){
 	}
 
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
-	long long int sizeForRank = (upperBound - lowerBound) * 8;
+	long long int sizeForRank = (upperBound - lowerBound);
 	printf("Size in main.c: %lld\n", sizeForRank);
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 	if(whatToDoToFile == create){
