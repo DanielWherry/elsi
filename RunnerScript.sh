@@ -1,6 +1,7 @@
 #!/bin/bash
 
-ARGS=$(getopt -o s:c:d:r:n:R:S:i:f -l "stripeSize:,stripeCount:,numOMPThreads:,ranks:,numNodes:,ranksPerNode:,fileSize:,numIORanks:,filename" -n "RunnerScript.sh" -- "$@");
+
+ARGS=$(getopt -o s:c:n:S:f -l "stripeSize:,stripeCount:,numNodes:,fileSize:,filename" -n "RunnerScript.sh" -- "$@");
 
 if [ $? -ne 0 ];
 then
@@ -25,27 +26,6 @@ while true; do
 	    shift;
  	 fi
 	 ;;
-      -d|--numOMPThreads)
-         shift;
-         if [ -n "$1" ]; then
-	    NUMBER_OF_OMP_THREADS=$1;
-	    shift;
- 	 fi
-	 ;;
-      -r|--ranks)
-         shift;
-         if [ -n "$1" ]; then
-	    TOTAL_NUMBER_OF_RANKS=$1;
-	    shift;
- 	 fi
-	 ;;
-      -R|--ranksPerNode)
-         shift;
-         if [ -n "$1" ]; then
-	    RANKS_PER_NODE=$1;
-	    shift;
- 	 fi
-	 ;;
       -n|--numNodes)
          shift;
          if [ -n "$1" ]; then
@@ -60,23 +40,25 @@ while true; do
 	    shift;
  	 fi
 	 ;;
-      -i|--numIORanks)
-         shift;
-         if [ -n "$1" ]; then
-	    NUMBER_OF_IO_RANKS=$1;
-	    shift;
- 	 fi
-	 ;;
       -f|--filename)
+	 echo "hey"
          shift;
+	 echo "hey"
 	 shift;
+	 echo "hey"
          if [ -n "$1" ]; then
 	    FILENAME=$1;
  	 fi
 	 break;
 	 ;;
+	--)
+	break;
+	;;
    esac
 done
+
+TOTAL_NUMBER_OF_RANKS=$(($NUMBER_OF_NODES * 16))
+NUMBER_OF_IO_RANKS=$NUMBER_OF_NODES
 
 echo "
 #!/bin/bash
@@ -93,8 +75,8 @@ cp \$PBS_O_WORKDIR/submit.titan.pbs \$MEMBERWORK/stf007/submit.titan.\$\PBS_JOBI
 cd \$MEMBERWORK/stf007
 rm integer.dat
 lfs setstripe --size $STRIPESIZE -c $STRIPECOUNT integer.dat
-export OMP_NUM_THREADS=$NUMBER_OF_OMP_THREADS
-aprun -n $TOTAL_NUMBER_OF_RANKS -N $RANKS_PER_NODE -d $NUMBER_OF_OMP_THREADS ./striping-benchmark.titan.exe --size $SIZE_OF_FILE --numIORanks $NUMBER_OF_IO_RANKS --create $FILENAME > striping-titan.\$PBS_JOBID.txt
+export OMP_NUM_THREADS=1
+aprun -n $TOTAL_NUMBER_OF_RANKS -N 16 -d \$OMP_NUM_THREADS ./striping-benchmark.titan.exe --size $SIZE_OF_FILE --numIORanks $NUMBER_OF_IO_RANKS --create $FILENAME > striping-titan.\$PBS_JOBID.txt
 source \$MODULESHOME/init/bash
 module load python_matplotlib
 python graph.py --file striping-titan.\$PBS_JOBID.txt --numNodes $NUMBER_OF_NODES

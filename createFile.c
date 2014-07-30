@@ -63,17 +63,18 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 		
 		displacement = setDisplacementForFileView(mpiInfo, sizeOfComm, rank);
 		printf("rank:%d, Disp: %lld\n",rank, displacement);
-		MPI_Barrier(ioComm);		
 
 		Timer(
 			TestForError(MPI_File_open(ioComm, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile),5),
 			timerOfProcesses.openTime
 		);
-		
-		MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-		
+
+		//MPI_FILE_SEEK(outfile, displacement, MPI_SEEK_SET);		
+     		MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+
+
 		Timer(
-			TestForError(MPI_File_write(outfile, mpiInfo.integersToWrite, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, &status),6),
+			TestForError(MPI_File_write(outfile, mpiInfo.integersToWrite, mpiInfo.sizeAssignedToRank * sizeOfComm, MPI_LONG_LONG_INT, &status),6),
 			timerOfProcesses.readOrWriteTime
 		);
 	
@@ -88,7 +89,7 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	free(mpiInfo.integersToWrite);
 }
 MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank){
-	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank);
+	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank) * sizeOfComm;
 	return sizeOfDisplacement;
 }
 void setFileName(InfoAboutFile* fileInfo){
@@ -123,7 +124,7 @@ long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpi
 		return  (size / numProc) + 1;
 	}else{
 		printf("size: %lld\n", size / numProc);
-		return size / numProc;
+		return size / numProc;	
 	}
 }
 //
