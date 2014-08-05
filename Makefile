@@ -16,14 +16,14 @@ benchmarkFunctions.o: benchmarkFunctions.c benchmarkFunctions.h
 benchmarkFunctions.titan.o: benchmarkFunctions.c benchmarkFunctions.h
 	cc -o benchmarkFunctions.titan.o benchmarkFunctions.c -c
 
-striping-benchmark.mac.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
-	mpicc -o striping-benchmark.mac.exe main.c createFile.o verifyFile.o benchmarkFunctions.o 
+elsi.mac.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
+	mpicc -o elsi.mac.exe main.c createFile.o verifyFile.o benchmarkFunctions.o 
 
-striping-benchmark.rhea.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
-	mpicc -o striping-benchmark.rhea.exe main.c createFile.o verifyFile.o benchmarkFunctions.o
-	cp striping-benchmark.rhea.exe $(MEMBERWORK)/stf007
+elsi.rhea.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
+	mpicc -o elsi.rhea.exe main.c createFile.o verifyFile.o benchmarkFunctions.o
+	cp .rhea.exe $(MEMBERWORK)/stf007
 
-striping-benchmark.titan.exe: main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o
-	cc -o striping-benchmark.titan.exe main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o -mp 
-	cp striping-benchmark.titan.exe $(MEMBERWORK)/stf007
+elsi.titan.exe: main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o
+	cc -o elsi.titan.exe main.c createFile.titan.o verifyFile.titan.o benchmarkFunctions.titan.o -mp 
+	cp elsi.titan.exe $(MEMBERWORK)/stf007
 

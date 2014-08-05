@@ -17,7 +17,7 @@ def html(message, timingStats, numRanks, numberOfNodes, rankFileSize, JOB_ID, ov
 	
 	ranksPerNode = numRanks / numberOfNodes
 
-	HTML = open('StripingBenchmarkResults.html', 'w')
+	HTML = open('elsiResults.html', 'w')
 	finalMessage = """
 	<html>
 	<head>

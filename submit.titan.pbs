@@ -1,23 +1,23 @@
 #!/bin/bash
 # Begin PBS directives
 #PBS -A stf007
-#PBS -N striping-titan
+#PBS -N elsi-titan
 #PBS -M wherrydh@ornl.gov
 #PBS -m e 
-#PBS -l walltime=0:05:00,nodes=100
+#PBS -l walltime=0:05:00,nodes=10
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
 
 cp $PBS_O_WORKDIR/submit.titan.pbs $MEMBERWORK/stf007/submit.titan.$PBS_JOBID.pbs
 cd $MEMBERWORK/stf007
-#rm integer.dat
-#lfs setstripe --size 10m -c 100 integer6.dat
+rm integer.dat
+lfs setstripe --size 10m -c 10 integer.dat
 export OMP_NUM_THREADS=1
-aprun -n 1600 -N 16 -d $OMP_NUM_THREADS ./striping-benchmark.titan.exe --size 50GB --numIORanks 100 --create integer6  > striping-titan.$PBS_JOBID.txt
+aprun -n 160 -N 16 -d $OMP_NUM_THREADS ./elsi.titan.exe --size 10GB --numIORanks 10 --create integer  > elsi-titan.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
-python graph.py --file striping-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
-mv StripingBenchmarkResults.html $PBS_O_WORKDIR/Official-Reports/StripingBenchmarkResults.NoStriping.$PBS_JOBID.html 
+python graph.py --file elsi-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
+mv elsiResults.html $PBS_O_WORKDIR/Official-Reports/elsiResults.$PBS_JOBID.html 
 mv OpenTime.* $PBS_O_WORKDIR/Official-Reports/  
 mv CloseTime.* $PBS_O_WORKDIR/Official-Reports/  
 [ -e GenerateTime.* ] && mv GenerateTime.* $PBS_O_WORKDIR/Official-Reports/  
