@@ -50,9 +50,6 @@ done
 TOTAL_NUMBER_OF_RANKS=$(($PBS_NUM_NODES * 16))
 NUMBER_OF_IO_RANKS=$PBS_NUM_NODES
 
-
-#PBS -A stf007
-
 rm integer.dat
 lfs setstripe --size $STRIPESIZE -c $STRIPECOUNT integer.dat
 export OMP_NUM_THREADS=1
