@@ -37,8 +37,6 @@ Can only create files that are a small fraction of the size of a nodes allocatab
 Can not verify files yet, only create them
 
 .SH AUTHOR
-.IP "Daniel Wherry" 
-.IP "Austin Peay State Univesity, Department of Computer Science"
-.IP "dwherry2@my.apsu.edu"
-.IP "wherrydaniel@gmail.com"
+.IP "Daniel Wherry (dwherry2@my.apsu.edu) - Department of Computer Science, Austin Peay State University" 
+.IP "Robert D. French (frenchrd@ornl.gov) - Oak Ridge Leadership Computing Facility"
 
