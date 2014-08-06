@@ -36,6 +36,7 @@ Can only create files that are a small fraction of the size of a nodes allocatab
 
 Can not verify files yet, only create them
 
+Checking stuff for repo
 .SH AUTHOR
 .IP "Daniel Wherry (dwherry2@my.apsu.edu) - Department of Computer Science, Austin Peay State University" 
 .IP "Robert D. French (frenchrd@ornl.gov) - Oak Ridge Leadership Computing Facility"
