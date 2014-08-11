@@ -28,7 +28,6 @@ void setIntegerArray(long long int size, long long int lowerBound, long long int
 void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long long int size);
 void setIOArray(MpiInfo* mpiInfo, int numIORanks);
 void setSubCommArray(MpiInfo* mpiInfo, int rank);
-void setFileName(InfoAboutFile* fileInfo);
 MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank);
 void setGroupID(int rank, MpiInfo* mpiInfo);
 void setRootOfGroup(int rank, MpiInfo* mpiInfo);

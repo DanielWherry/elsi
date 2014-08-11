@@ -17,7 +17,7 @@ void printCreateFile(Timing* t, int rank, char* fileSize){
 //THIS FUNCTION CREATES A FILE WITH INFORMATION DETERMINED BY THE USER AT THE COMMAND LINE 
 void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long long int lowerBound, int numProc, int numIORanks){
 	
-	double start, end;
+	double start, end, overallWrite = 0;
 	int err = 0, sizeOfComm;
 	Timing timerOfProcesses;
 	MpiInfo mpiInfo;
@@ -55,52 +55,68 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	free(mpiInfo.ioArray);
 	
 	setWriteArray(&mpiInfo, sizeOfComm, rootChoice);		
-	TestForError(MPI_Gather(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, mpiInfo.integersToWrite, mpiInfo.receiveCount , MPI_LONG_LONG_INT, 0, subComm),4)
-	free(integers);
+	int i, doingRoot;
+	MPI_Request request = MPI_REQUEST_NULL;
+	for( i = mpiInfo.rootOfGroup; i < sizeOfComm + mpiInfo.rootOfGroup; i++){
+	
+		if(rootChoice == root && i != mpiInfo.rootOfGroup){
+			MPI_Recv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, i - (mpiInfo.rootOfGroup), 0, subComm, MPI_STATUS_IGNORE);
+		}
 
-	if(rootChoice == root){
-		setFileName(&fileInfo);
+		if(rootChoice == notRoot && i == rank){
+			MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm);
+		}
 		
-		displacement = setDisplacementForFileView(mpiInfo, sizeOfComm, rank);
-		printf("rank:%d, Disp: %lld\n",rank, displacement);
+		if(rootChoice == root && i == mpiInfo.rootOfGroup){
+			MPI_Irecv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, 0, 0, subComm, &request);
+			MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm);
+			MPI_Wait(&request, MPI_STATUS_IGNORE);
+		}
 
-		Timer(
-			TestForError(MPI_File_open(ioComm, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile),5),
-			timerOfProcesses.openTime
-		);
-
-		//MPI_FILE_SEEK(outfile, displacement, MPI_SEEK_SET);		
-     		MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
-
-
-		Timer(
-			TestForError(MPI_File_write(outfile, mpiInfo.integersToWrite, mpiInfo.sizeAssignedToRank * sizeOfComm, MPI_LONG_LONG_INT, &status),6),
-			timerOfProcesses.readOrWriteTime
-		);
-	
-		Timer(
-			MPI_File_close(&outfile),
-			timerOfProcesses.closeTime
-		);
-	
-		printCreateFile(&timerOfProcesses, rank, fileInfo.filesize);
+		if(rootChoice == root){
+			
+			if(i == mpiInfo.rootOfGroup){
+				displacement = setDisplacementForFileView(mpiInfo, sizeOfComm, rank);
+			
+		
+				Timer(
+					TestForError(MPI_File_open(ioComm, fileInfo.filename, MPI_MODE_WRONLY|MPI_MODE_CREATE, MPI_INFO_NULL, &outfile),5),
+					timerOfProcesses.openTime
+				);
+		
+	     			MPI_File_set_view(outfile, displacement, MPI_LONG_LONG_INT, MPI_LONG_LONG_INT, "native", MPI_INFO_NULL);
+			}
+			
+			Timer(
+				TestForError(MPI_File_write(outfile, mpiInfo.integersToWrite, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, MPI_STATUS_IGNORE),6),
+				timerOfProcesses.readOrWriteTime
+			);
+			overallWrite += timerOfProcesses.readOrWriteTime;
+			
+			if(i == ((sizeOfComm + mpiInfo.rootOfGroup) - 1)){
+				Timer(
+					MPI_File_close(&outfile),
+					timerOfProcesses.closeTime
+				);
+			
+			timerOfProcesses.readOrWriteTime = overallWrite;
+			printCreateFile(&timerOfProcesses, rank, fileInfo.filesize);
+			free(mpiInfo.integersToWrite);
+			}
+		}
 	}
-
-	free(mpiInfo.integersToWrite);
+	free(integers);
 }
+
+
+
 MPI_Offset setDisplacementForFileView(MpiInfo mpiInfo, int sizeOfComm, int rank){
 	MPI_Offset sizeOfDisplacement = sizeof(MPI_Offset) * mpiInfo.groupID * (mpiInfo.sizeAssignedToRank) * sizeOfComm;
 	return sizeOfDisplacement;
 }
-void setFileName(InfoAboutFile* fileInfo){
-	char str[50];
-	sprintf(str, ".dat");
-	strcat(fileInfo->filename, str);
-}
 void setWriteArray(MpiInfo* mpiInfo, int sizeOfComm, rootOrNot rootChoice){
 	if(rootChoice == root){
-		long long int sizeOfWriteArray = sizeof(long long int) * (mpiInfo->sizeAssignedToRank) * sizeOfComm;
-		printf("size of write array: %lld\n", sizeOfWriteArray);
+		long long int sizeOfWriteArray = sizeof(long long int) * (mpiInfo->sizeAssignedToRank);
 		mpiInfo->integersToWrite = (long long int*) malloc(sizeOfWriteArray); 
 		mpiInfo->receiveCount = mpiInfo->sizeAssignedToRank;
 	}else{
@@ -123,7 +139,6 @@ long long int setSizeAssignedToRank(long long int size, int numProc, MpiInfo mpi
 	if(rank < mpiInfo.otherExtraWork){
 		return  (size / numProc) + 1;
 	}else{
-		printf("size: %lld\n", size / numProc);
 		return size / numProc;	
 	}
 }
@@ -135,7 +150,6 @@ void setIntegerArray(long long int size, long long int lowerBound, long long int
 		for( i = 0; i < size; i++){
 			integers[i] = lowerBound + i;
 		}
-		printf("size in createFile.c: %lld\n",size );
 }
 //CHECK THIS FUNCTION FOR EXTRAWORK. EXTRAWORK NOT CORRECT MAYBE. NEED 2 SEPARATE EXTRAWORKS. NAME BETTER
 void setMpiInfo(MpiInfo* mpiInfo, int numProc, int numIORanks, int rank, long long int size){ 

@@ -36,7 +36,6 @@ int main(int argc, char ** argv){
 				
 				strcpy(fileInfo.filesize,optarg);
                                 fileInfo.SIZE = setSize(optarg);
-				printf("size in case s: %lld\n", fileInfo.SIZE);
 				break;
 
 			case 'n' : 
@@ -61,19 +60,18 @@ int main(int argc, char ** argv){
 
 	setBoundsForRanks(rank, numProc, fileInfo.SIZE, &lowerBound, &upperBound);
 	long long int sizeForRank = (upperBound - lowerBound);
-	printf("Size in main.c: %lld\n", sizeForRank);
 	long long int* integers = (long long int*) malloc(sizeForRank * sizeof(long long int));
 	if(whatToDoToFile == create){
 		createFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
 
 	}else if(whatToDoToFile == verify){
-		verifyFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
+		//verifyFile(fileInfo, integers, rank, lowerBound, numProc, numIORanks);
 
 	}else{
 		printf("See github.com/DanielWherry/striping-benchmark for usage information.\n");
 
 	}
-
+	
 	MPI_Finalize();	
 	return 0;
 

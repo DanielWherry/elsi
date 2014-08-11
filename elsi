@@ -1,0 +1,119 @@
+#!/bin/sh
+
+
+
+ARGS=$(getopt -o s:c:p:S:f -l "stripeSize:,stripeCount:,generatePBSScript:,fileSize:,filename" -n "RunnerScript.sh" -- "$@");
+
+if [ $? -ne 0 ];
+then
+   exit 1
+fi
+
+eval set -- "$ARGS";
+
+while true; do
+   case "$1" in
+      -s|--stripeSize)
+         shift;
+         if [ -n "$1" ]; then
+	    STRIPESIZE=$1;
+	    shift;
+ 	 fi
+	 ;;
+      -c|--stripeCount)
+         shift;
+         if [ -n "$1" ]; then
+	    STRIPECOUNT=$1;
+	    shift;
+ 	 fi
+	 ;;
+      -p|--generatePBSScript)
+         shift;
+         if [ -n "$1" ]; then
+	    GENERATESUBMIT=generatePBS;
+	    shift;
+ 	 fi
+	 ;;
+      -S|--fileSize)
+         shift;
+         if [ -n "$1" ]; then
+	    SIZE_OF_FILE=$1;
+	    shift;
+ 	 fi
+	 ;;
+      -f|--filename)
+         shift;
+	 shift;
+         if [ -n "$1" ]; then
+	    FILENAME=$1;
+ 	 fi
+	 break;
+	 ;;
+	--)
+	break;
+	;;
+   esac
+done
+
+
+if [ "$GENERATESUBMIT" == "generatePBS" ]; then
+ 
+	read -e -p "Enter your project ID: " PROJ_ID
+	read -e -p "Enter your email address: " EMAIL_ADDRESS
+	read -e -p "Enter desired walltime(hh:mm:ss): " WALL_TIME 
+	read -e -p "Enter desired number of nodes: " NUM_NODES
+	
+ 	TOTAL_NUMBER_OF_RANKS=$(($NUM_NODES * 16))
+
+echo "#!/bin/bash
+# Begin PBS directives
+#PBS -A $PROJ_ID
+#PBS -N elsi-titan
+#PBS -M $EMAIL_ADDRESS
+#PBS -m e 
+#PBS -l walltime=$WALL_TIME,nodes=$NUM_NODES
+#PBS -l gres=atlas1%atlas2
+#    End PBS directives and begin shell commands
+
+cp \$PBS_O_WORKDIR/submit.titan.pbs \$MEMBERWORK/$PROJ_ID/submit.titan.\$PBS_JOBID.pbs
+cd \$MEMBERWORK/$PROJ_ID
+rm integer.dat
+lfs setstripe --size $STRIPESIZE -c $STRIPECOUNT $FILENAME
+export OMP_NUM_THREADS=1
+aprun -n $TOTAL_NUMBER_OF_RANKS -N 16 -d $OMP_NUM_THREADS ./elsi.titan.exe --size $SIZE_OF_FILE --numIORanks \$PBS_NUM_NODES --create $FILENAME > elsi.\$PBS_JOBID.txt
+source \$MODULESHOME/init/bash
+module load python_matplotlib
+python graph.py --file elsi-titan.\$PBS_JOBID.txt --numNodes \$PBS_NUM_NODES
+mv elsiResults.html \$PBS_O_WORKDIR/Official-Reports/elsiResults.\$PBS_JOBID.html 
+mv OpenTime.* \$PBS_O_WORKDIR/Official-Reports/  
+mv CloseTime.* \$PBS_O_WORKDIR/Official-Reports/  
+[ -e GenerateTime.* ] && mv GenerateTime.* \$PBS_O_WORKDIR/Official-Reports/  
+[ -e WriteTime.* ] && mv WriteTime.* \$PBS_O_WORKDIR/Official-Reports/  
+[ -e ReadTime.* ] && mv ReadTime.* \$PBS_O_WORKDIR/Official-Reports/ 
+[ -e VerifyTime.* ] && mv VerifyTime.* \$PBS_O_WORKDIR/Official-Reports/" > elsi.titan.pbs  
+else
+	TOTAL_NUMBER_OF_RANKS=$(($PBS_NUM_NODES * 16))
+	NUMBER_OF_IO_RANKS=$PBS_NUM_NODES
+ 
+	rm integer.dat
+	lfs setstripe --size $STRIPESIZE -c $STRIPECOUNT integer.dat
+	export OMP_NUM_THREADS=1
+	aprun -n $TOTAL_NUMBER_OF_RANKS -N 16 -d $OMP_NUM_THREADS ./elsi.titan.exe --size $SIZE_OF_FILE --numIORanks $NUMBER_OF_IO_RANKS --create $FILENAME > elsi.$PBS_JOBID.txt
+	source $MODULESHOME/init/bash
+	module load python_matplotlib
+	python graph.py --file elsi.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
+ 	
+	if [ ! -d "./Official-Reports/" ]; then
+		mkdir ./Official-Reports/
+	fi
+	mv elsiResults.html ./Official-Reports/elsi.$PBS_JOBID.html
+	mv OpenTime.* ./Official-Reports/
+	mv CloseTime.* ./Official-Reports/
+	[ -e GenerateTime.* ] && mv GenerateTime.* ./Official-Reports/
+	[ -e WriteTime.* ] && mv WriteTime.* ./Official-Reports/
+	[ -e ReadTime.* ] && mv GenerateTime.* ./Official-Reports/
+	[ -e VerifyTime.* ] && mv GenerateTime.* ./Official-Reports/
+ fi		
+	
+	
+
