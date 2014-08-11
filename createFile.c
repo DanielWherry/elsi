@@ -7,7 +7,7 @@
 
 #define TestForError(err,errID) if(err){ MPI_Abort(MPI_COMM_WORLD, errID); }
 #define Timer(function,timer) start = MPI_Wtime(); function; end = MPI_Wtime(); timer = end - start;
-
+//Finsihed
 //THIS FUNCTION PRINTS CREATION TIMING INFORMATION
 void printCreateFile(Timing* t, int rank, char* fileSize){
 
