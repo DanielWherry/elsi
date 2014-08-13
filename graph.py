@@ -9,11 +9,6 @@ import re
 
 
 def html(message, timingStats, numRanks, numberOfNodes, rankFileSize, JOB_ID, overallFileSize, fileNames):
-
-	nameOfSubmitScript = "RunnerScript.sh"	
-	PBS_SCRIPT = open(nameOfSubmitScript,'r')
-	contentsOfScript = PBS_SCRIPT.read()	
-	PBS_SCRIPT.close()
 	
 	ranksPerNode = numRanks / numberOfNodes
 
@@ -27,13 +22,6 @@ def html(message, timingStats, numRanks, numberOfNodes, rankFileSize, JOB_ID, ov
 	<h1>
 	This run was completed using %(numNodes)d I/O Ranks to make %(fileChunks)s sized chunks of a %(fileSize)s sized file. Here was the script submitted to run this test: 
 	</h1>
-	<h2>
-	<pre>
-	<code>
-	%(script)s
-	</code>
-	</pre>
-	</h2>
 	</head>
 	<body>
 	<table>
@@ -62,7 +50,7 @@ def html(message, timingStats, numRanks, numberOfNodes, rankFileSize, JOB_ID, ov
 	%(otherMessage)s
 	</table>
 	</body>
-	</html>""" % {"openFile":fileNames['openFileName'], "closeFile":fileNames['closeFileName'], "otherMessage":message, "openTime":timingStats['openTimeMean'], "closeTime":timingStats['closeTimeMean'], "oDev":timingStats['openTimeDev'], "cDev":timingStats['closeTimeDev'], "numNodes":numberOfNodes, "fileSize":overallFileSize, "fileChunks": rankFileSize,"script":contentsOfScript}
+	</html>""" % {"openFile":fileNames['openFileName'], "closeFile":fileNames['closeFileName'], "otherMessage":message, "openTime":timingStats['openTimeMean'], "closeTime":timingStats['closeTimeMean'], "oDev":timingStats['openTimeDev'], "cDev":timingStats['closeTimeDev'], "numNodes":numberOfNodes, "fileSize":overallFileSize, "fileChunks": rankFileSize}
 	HTML.write(finalMessage)
 	HTML.close()
 

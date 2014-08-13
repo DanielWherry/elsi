@@ -23,18 +23,16 @@ Controls the chunk size that would be given to Lustre\'s setstripe utility. Spec
 Controls the number of chunks that would be given to Lustre\'s setstripe utility
 
 .IP -S,--fileSize
-Controls the total file size that you want to created. Specified by appending 'B', 'KB', 'MB', 'GB', or 'TB' to the size desired e.g. "50GB" for a 50 Gigabyte file or "2TB" for a 2 Terabyte file
+Controls the total file size that you want to created. Specified by appending 'B', 'KB', 'MB', 'GB', or 'TB' to the size desired e.g. "50GB" for a 50 Gigabyte file or "2TB" for a 2 Terabyte file. The size of file that is capable of being made depends on how many nodes that are being used. You add 25GB to the possible file size per node e.g. 5 nodes can make a maximum file size of 125GB and 100 nodes can make a maximum file size of 2500GB. The size values must be given in whole numbers e.g. "2560GB" is OK while "2.5TB" is not
 
 .IP -f,--fileName
-Name of file that you wish to produce. ".dat" will be appended to the name that you choose e.g. "integer" becomes "integer.dat"
+Name of file that you wish to produce.
 
 .SH SEE ALSO
 lfs setstripe  
 
 .SH BUGS
-Can only create files that are a small fraction of the size of a nodes allocatable memory
-
-Can not verify files yet, only create them
+Creates HTML reports instead of PDF reports
 
 .SH AUTHOR
 .IP "Daniel Wherry (dwherry2@my.apsu.edu) - Department of Computer Science, Austin Peay State University" 

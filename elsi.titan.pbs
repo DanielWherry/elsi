@@ -1,26 +1,22 @@
 #!/bin/bash
 # Begin PBS directives
-#PBS -A 1
+#PBS -A wet@
 #PBS -N elsi-titan
-#PBS -M 1
+#PBS -M we132
 #PBS -m e 
-#PBS -l walltime=1,nodes=1
+#PBS -l walltime=123:"2313,nodes=1234
 #PBS -l gres=atlas1%atlas2
 #    End PBS directives and begin shell commands
-
-cp $PBS_O_WORKDIR/submit.titan.pbs $MEMBERWORK/1/submit.titan.$PBS_JOBID.pbs
-cd $MEMBERWORK/1
-rm integer.dat
-lfs setstripe --size 3m -c 24 50GB
+lfs setstripe --size 10m -c 400 integer.dat
 export OMP_NUM_THREADS=1
-aprun -n 16 -N 16 -d  ./elsi.titan.exe --size  --numIORanks $PBS_NUM_NODES --create 50GB > elsi.$PBS_JOBID.txt
+aprun -n 19744 -N 16 -d $OMP_NUM_THREADS ./elsi.titan.exe --size 50GB --numIORanks $PBS_NUM_NODES --create integer.dat > elsi.$PBS_JOBID.txt
 source $MODULESHOME/init/bash
 module load python_matplotlib
-python graph.py --file elsi-titan.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
-mv elsiResults.html $PBS_O_WORKDIR/Official-Reports/elsiResults.$PBS_JOBID.html 
-mv OpenTime.* $PBS_O_WORKDIR/Official-Reports/  
-mv CloseTime.* $PBS_O_WORKDIR/Official-Reports/  
-[ -e GenerateTime.* ] && mv GenerateTime.* $PBS_O_WORKDIR/Official-Reports/  
-[ -e WriteTime.* ] && mv WriteTime.* $PBS_O_WORKDIR/Official-Reports/  
-[ -e ReadTime.* ] && mv ReadTime.* $PBS_O_WORKDIR/Official-Reports/ 
-[ -e VerifyTime.* ] && mv VerifyTime.* $PBS_O_WORKDIR/Official-Reports/
+python graph.py --file elsi.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES
+mv elsiResults.html Official-Reports/elsiResults.$PBS_JOBID.html 
+mv OpenTime.* /Official-Reports/  
+mv CloseTime.* /Official-Reports/  
+[ -e GenerateTime.* ] && mv GenerateTime.* /Official-Reports/     
+[ -e WriteTime.* ] && mv WriteTime.* /Official-Reports/  
+[ -e ReadTime.* ] && mv ReadTime.* /Official-Reports/ 
+[ -e VerifyTime.* ] && mv VerifyTime.* /Official-Reports/
