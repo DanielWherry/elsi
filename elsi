@@ -2,7 +2,6 @@
 import os
 from optparse import OptionParser
 
-
 parser = OptionParser()
 
 parser.add_option("-f", "--filename", action="store", type="string", dest="filename")
@@ -18,26 +17,33 @@ parser.add_option("-p", "--PBSscript", action="store_true", dest="PBSscript")
 (options,args) = parser.parse_args()
 
 if(options.PBSscript):
-    NUM_NODES = raw_input('Enter desired number of nodes: ')
-    TOTAL_NUM_RANKS = int(NUM_NODES) * 16
+    PBS_NUM_NODES = raw_input('Enter desired number of nodes: ')
+    TOTAL_NUM_RANKS = int(PBS_NUM_NODES) * 16
+    PBS_JOB_ID = '$PBS_JOBID'
 else:
-    TOTAL_NUM_RANKS = int(os.environ('PBS_NUM_NODES')) * 16
+    PBS_NUM_NODES = int(os.getenv('PBS_NUM_NODES'))
+    PBS_JOB_ID = int(os.getenv('PBS_JOBID'))
+    TOTAL_NUM_RANKS = PBS_NUM_NODES * 16
+    print TOTAL_NUM_RANKS
     
 cmds = []
 
 cmds.append("lfs setstripe --size {stripeSize} -c {stripeCount} {filename}".format(stripeSize=options.stripeSize, stripeCount=options.stripeCount, filename=options.filename))
 cmds.append("export OMP_NUM_THREADS=1")
-cmds.append("aprun -n {totalRanks} -N 16 -d $OMP_NUM_THREADS ./elsi.titan.exe --size {fileSize} --numIORanks $PBS_NUM_NODES --create {filename} > elsi.$PBS_JOBID.txt".format(totalRanks=TOTAL_NUM_RANKS, fileSize=options.fileSize, filename=options.filename))
-cmds.append("source $MODULESHOME/init/bash")
+cmds.append("aprun -n {totalRanks} -N 16 -d 1 ./elsi.titan.exe --size {fileSize} --numIORanks {numNodes} --create {filename} > elsi.$PBS_JOBID.txt".format(totalRanks=TOTAL_NUM_RANKS, fileSize=options.fileSize, filename=options.filename, numNodes=PBS_NUM_NODES))
+cmds.append("source {MODULESHOME}/init/bash".format(MODULESHOME=os.getenv('MODULESHOME')))
 cmds.append("module load python_matplotlib")
-cmds.append("python graph.py --file elsi.$PBS_JOBID.txt --numNodes $PBS_NUM_NODES")
-cmds.append("mv elsiResults.html Official-Reports/elsiResults.$PBS_JOBID.html ")
-cmds.append("mv OpenTime.* /Official-Reports/  ")
-cmds.append("mv CloseTime.* /Official-Reports/  ")
-cmds.append("[ -e GenerateTime.* ] && mv GenerateTime.* /Official-Reports/     ")
-cmds.append("[ -e WriteTime.* ] && mv WriteTime.* /Official-Reports/  ")
-cmds.append("[ -e ReadTime.* ] && mv ReadTime.* /Official-Reports/ ")
-cmds.append("[ -e VerifyTime.* ] && mv VerifyTime.* /Official-Reports/")
+cmds.append("python graph.py --file elsi.{jobid}.txt --numNodes {numNodes}".format(numNodes=PBS_NUM_NODES, jobid=PBS_JOB_ID))
+cmds.append("if [ ! -d \"./Elsi-Reports/\" ]; then")
+cmds.append("    mkdir ./Elsi-Reports/")
+cmds.append("fi")
+cmds.append("mv elsiResults.html Elsi-Reports/elsiResults.{jobid}.html ".format(jobid=PBS_JOB_ID))
+cmds.append("mv OpenTime.{jobid}.png /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
+cmds.append("mv CloseTime.{jobid}.png /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
+cmds.append("[ -e GenerateTime.{jobid}.png ] && mv GenerateTime.* /Elsi-Reports/     ".format(jobid=PBS_JOB_ID))
+cmds.append("[ -e WriteTime.{jobid}.png ] && mv WriteTime.* /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
+cmds.append("[ -e ReadTime.{jobid}.png ] && mv ReadTime.* /Elsi-Reports/ ".format(jobid=PBS_JOB_ID))
+cmds.append("[ -e VerifyTime.{jobid}.png ] && mv VerifyTime.* /Elsi-Reports/".format(jobid=PBS_JOB_ID))
     
  	
 if(options.PBSscript):
@@ -53,7 +59,7 @@ if(options.PBSscript):
     cmds.insert(3,"#PBS -N elsi-titan")
     cmds.insert(4,"#PBS -M {email}".format(email=EMAIL_ADDRESS))
     cmds.insert(5,"#PBS -m e ")
-    cmds.insert(6,"#PBS -l walltime={walltime},nodes={nodes}".format(walltime=WALL_TIME, nodes=NUM_NODES))
+    cmds.insert(6,"#PBS -l walltime={walltime},nodes={nodes}".format(walltime=WALL_TIME, nodes=PBS_NUM_NODES))
     cmds.insert(7,"#PBS -l gres=atlas1%atlas2")
     cmds.insert(8,"#    End PBS directives and begin shell commands")
  
@@ -63,8 +69,7 @@ if(options.PBSscript):
     f.close()
 
 else:
-    for line in cmds:
-        os.system(line + "\n")
+    os.system(" ;".join(cmds))
 
 
 
