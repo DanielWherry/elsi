@@ -9,6 +9,7 @@ import re
 
 
 def html(message, timingStats, numRanks, numberOfNodes, rankFileSize, JOB_ID, overallFileSize, fileNames):
+
 	
 	ranksPerNode = numRanks / numberOfNodes
 
