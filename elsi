@@ -1,4 +1,5 @@
 #!/bin/env python
+#import pdfkit
 import os
 from optparse import OptionParser
 
@@ -24,7 +25,6 @@ else:
     PBS_NUM_NODES = int(os.getenv('PBS_NUM_NODES'))
     PBS_JOB_ID = int(os.getenv('PBS_JOBID'))
     TOTAL_NUM_RANKS = PBS_NUM_NODES * 16
-    print TOTAL_NUM_RANKS
     
 cmds = []
 
@@ -34,17 +34,7 @@ cmds.append("aprun -n {totalRanks} -N 16 -d 1 ./elsi.titan.exe --size {fileSize}
 cmds.append("source {MODULESHOME}/init/bash".format(MODULESHOME=os.getenv('MODULESHOME')))
 cmds.append("module load python_matplotlib")
 cmds.append("python graph.py --file elsi.{jobid}.txt --numNodes {numNodes}".format(numNodes=PBS_NUM_NODES, jobid=PBS_JOB_ID))
-cmds.append("if [ ! -d \"./Elsi-Reports/\" ]; then")
-cmds.append("    mkdir ./Elsi-Reports/")
-cmds.append("fi")
-cmds.append("mv elsiResults.html Elsi-Reports/elsiResults.{jobid}.html ".format(jobid=PBS_JOB_ID))
-cmds.append("mv OpenTime.{jobid}.png /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
-cmds.append("mv CloseTime.{jobid}.png /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
-cmds.append("[ -e GenerateTime.{jobid}.png ] && mv GenerateTime.* /Elsi-Reports/     ".format(jobid=PBS_JOB_ID))
-cmds.append("[ -e WriteTime.{jobid}.png ] && mv WriteTime.* /Elsi-Reports/  ".format(jobid=PBS_JOB_ID))
-cmds.append("[ -e ReadTime.{jobid}.png ] && mv ReadTime.* /Elsi-Reports/ ".format(jobid=PBS_JOB_ID))
-cmds.append("[ -e VerifyTime.{jobid}.png ] && mv VerifyTime.* /Elsi-Reports/".format(jobid=PBS_JOB_ID))
-    
+cmds.append("mv elsiResults.html elsiResults.{jobid}.html ".format(jobid=PBS_JOB_ID))
  	
 if(options.PBSscript):
     PROJ_ID = raw_input('Enter your project ID: ')
@@ -69,8 +59,19 @@ if(options.PBSscript):
     f.close()
 
 else:
-    os.system(" ;".join(cmds))
+    os.system("\n".join(cmds))
 
+#pdfkit.from_file('elsiResults.html', 'elsiResults.pdf')
+
+#cleanupCmds = []
+
+#cleanupCmds.append('rm elsiResults.html')
+#cleanupCmds.append('rm OpenTime.{jobid}.png')
+#cleanupCmds.append('rm CloseTime.{jobid}.png')
+#cleanupCmds.append('rm WriteTime.{jobid}.png')
+#cleanupCmds.append('rm GenerateTime.{jobid}.png')
+
+#os.system("\n".join(cleanupCmds))
 
 
 
