@@ -27,7 +27,7 @@ install:
 	mkdir $(PREFIX)/bin 
 	install elsi.titan.exe $(PREFIX)/bin
 	install elsiGraph.py $(PREFIX)/bin
-	install -m +x elsi $(PREFIX)/bin
+	install -m 775 elsi $(PREFIX)/bin
 
 
 
