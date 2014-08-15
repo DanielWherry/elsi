@@ -28,8 +28,11 @@ Controls the total file size that you want to created. Specified by appending 'B
 .IP -f,--fileName
 Name of file that you wish to produce.
 
+.IP -p,--generatePBSScript
+No arguments, use when outside of interactive job. Generates a PBS script to submit to the queue. Meant for use with large jobs
+
 .SH SEE ALSO
-lfs setstripe  
+lfs setstripe, qsub   
 
 .SH BUGS
 Creates HTML reports instead of PDF reports
