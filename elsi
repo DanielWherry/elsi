@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#import pdfkit
 import os
 from optparse import OptionParser
 
@@ -34,7 +33,6 @@ cmds.append("aprun -n {totalRanks} -N 16 -d 1 elsi.titan.exe --size {fileSize} -
 cmds.append("source {MODULESHOME}/init/bash".format(MODULESHOME=os.getenv('MODULESHOME')))
 cmds.append("module load python_matplotlib")
 cmds.append("elsiGraph.py --file elsi.{jobid}.txt --numNodes {numNodes}".format(numNodes=PBS_NUM_NODES, jobid=PBS_JOB_ID))
-cmds.append("mv elsiResults.html elsiResults.{jobid}.html ".format(jobid=PBS_JOB_ID))
  	
 if(options.PBSscript):
     PROJ_ID = raw_input('Enter your project ID: ')
@@ -60,18 +58,4 @@ if(options.PBSscript):
 
 else:
     os.system("\n".join(cmds))
-
-#pdfkit.from_file('elsiResults.html', 'elsiResults.pdf')
-
-#cleanupCmds = []
-
-#cleanupCmds.append('rm elsiResults.html')
-#cleanupCmds.append('rm OpenTime.{jobid}.png')
-#cleanupCmds.append('rm CloseTime.{jobid}.png')
-#cleanupCmds.append('rm WriteTime.{jobid}.png')
-#cleanupCmds.append('rm GenerateTime.{jobid}.png')
-
-#os.system("\n".join(cleanupCmds))
-
-
 

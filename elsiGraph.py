@@ -103,6 +103,7 @@ if choice == "The file is being created":
     timingStats['writeTimeMean'] = np.mean(write)
     timingStats['writeTimeDev'] = np.std(write)
 
+    print "\n----------------------------------------------------------"
     print "# of nodes: " + str(numberOfNodes)
     print "----------------------------------------------------------"
     print "# of I/O ranks: " + str(numberOfNodes) 
