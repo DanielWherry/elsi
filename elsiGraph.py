@@ -71,7 +71,7 @@ f.close()
 finalFileSize = findFileSizeForEachRank(fileSize)
 
 #Create dictionary of statistical information to pass around between functions
-str(timingStats = ({
+timingStats = ({
 	'openTimeMean':0, 'openTimeDev':0, 
 	'closeTimeMean':0, 'closeTimeDev':0,
 	'readTimeMean':0, 'readTimeDev':0,
@@ -80,10 +80,10 @@ str(timingStats = ({
 	'generateTimeMean':0, 'generateTimeDev':0
 	})
   
-str(timingStats['openTimeMean'] = np.mean(openT) 
-str(timingStats['openTimeDev'] = np.std(openT)  
-str(timingStats['closeTimeMean'] = np.mean(close)
-str(timingStats['closeTimeDev'] = np.std(close)
+timingStats['openTimeMean'] = np.mean(openT) 
+timingStats['openTimeDev'] = np.std(openT)  
+timingStats['closeTimeMean'] = np.mean(close)
+timingStats['closeTimeDev'] = np.std(close)
 
 rankNumber = len(rank)
 numberOfNodes = options.numNodes
@@ -91,17 +91,17 @@ numberOfNodes = options.numNodes
 
 if choice == "The file is being verified":
     
-    str(timingStats['readTimeMean'] = np.mean(read)
-    str(timingStats['readTimeDev'] = np.std(read)
-    str(timingStats['verifyTimeMean'] = np.mean(verify)
-    str(timingStats['verifyTimeDev'] = np.std(verify)
+    timingStats['readTimeMean'] = np.mean(read)
+    timingStats['readTimeDev'] = np.std(read)
+    timingStats['verifyTimeMean'] = np.mean(verify)
+    timingStats['verifyTimeDev'] = np.std(verify)
 
 if choice == "The file is being created":
     
-    str(timingStats['generateTimeMean'] = np.mean(generate)
-    str(timingStats['generateTimeDev'] = np.std(generate)
-    str(timingStats['writeTimeMean'] = np.mean(write)
-    str(timingStats['writeTimeDev'] = np.std(write)
+    timingStats['generateTimeMean'] = np.mean(generate)
+    timingStats['generateTimeDev'] = np.std(generate)
+    timingStats['writeTimeMean'] = np.mean(write)
+    timingStats['writeTimeDev'] = np.std(write)
 
     print "Number of nodes: " + str(numberOfNodes)
     print "Number of I/O ranks: " + str(numberOfNodes) 
