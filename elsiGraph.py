@@ -2,7 +2,6 @@
 import numpy as np
 from optparse import OptionParser
 import json
-from pylab import *
 import re
 
 def findFileSizeForEachRank(fileSize):

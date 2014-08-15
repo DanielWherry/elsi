@@ -30,8 +30,6 @@ cmds = []
 cmds.append("lfs setstripe --size {stripeSize} -c {stripeCount} {filename}".format(stripeSize=options.stripeSize, stripeCount=options.stripeCount, filename=options.filename))
 cmds.append("export OMP_NUM_THREADS=1")
 cmds.append("aprun -n {totalRanks} -N 16 -d 1 elsi.titan.exe --size {fileSize} --numIORanks {numNodes} --create {filename} > elsi.$PBS_JOBID.txt".format(totalRanks=TOTAL_NUM_RANKS, fileSize=options.fileSize, filename=options.filename, numNodes=PBS_NUM_NODES))
-cmds.append("source {MODULESHOME}/init/bash".format(MODULESHOME=os.getenv('MODULESHOME')))
-cmds.append("module load python_matplotlib")
 cmds.append("elsiGraph.py --file elsi.{jobid}.txt --numNodes {numNodes}".format(numNodes=PBS_NUM_NODES, jobid=PBS_JOB_ID))
  	
 if(options.PBSscript):
