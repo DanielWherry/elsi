@@ -48,6 +48,9 @@ if(options.PBSscript):
     cmds.insert(6,"#PBS -l walltime={walltime},nodes={nodes}".format(walltime=WALL_TIME, nodes=PBS_NUM_NODES))
     cmds.insert(7,"#PBS -l gres=atlas1%atlas2")
     cmds.insert(8,"#    End PBS directives and begin shell commands")
+    cmds.insert(9,"cd $MEMBERWORK/{projid}".format(projid=PROJ_ID)
+    cmds.insert(10,"source $MODULESHOME/init/bash")
+    cmds.insert(11,"module load elsi")
  
     for line in cmds:
         f.write(line + "\n")
