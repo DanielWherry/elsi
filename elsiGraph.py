@@ -127,7 +127,7 @@ if choice == "The file is being created":
     print "   Close File"
     print "        Mean:" + "   " + str(timingStats['closeTimeMean'])
     print "     Std Dev:" + "   " + str(timingStats['closeTimeDev']) 
-    print "----------------------------------------------------------"
+    print "----------------------------------------------------------\n"
 
 
 
