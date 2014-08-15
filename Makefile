@@ -22,5 +22,14 @@ elsi.rhea.exe: main.c createFile.o verifyFile.o benchmarkFunctions.o
 
 elsi.titan.exe: main.c createFile.titan.o benchmarkFunctions.titan.o
 	cc -o elsi.titan.exe main.c createFile.titan.o  benchmarkFunctions.titan.o -mp 
-	cp elsi.titan.exe $(MEMBERWORK)/stf007
+
+install:  	 
+	mkdir $(PREFIX)/bin 
+	cp elsi.titan.exe $(PREFIX)/bin
+	cp elsiGraph.py $(PREFIX)/bin
+	cp elsi $(PREFIX)/bin
+
+
+
+
 
