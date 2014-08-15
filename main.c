@@ -75,7 +75,7 @@ int main(int argc, char ** argv){
 	
 	double end = MPI_Wtime();
 	MPI_Finalize();	
-	printf("Time of Program: %f\n", end - start);
+	printf("Time of Program: %f, rank: %d\n", end - start, rank);
 	return 0;
 
 }
