@@ -71,7 +71,7 @@ f.close()
 finalFileSize = findFileSizeForEachRank(fileSize)
 
 #Create dictionary of statistical information to pass around between functions
-timingStats = ({
+str(timingStats = ({
 	'openTimeMean':0, 'openTimeDev':0, 
 	'closeTimeMean':0, 'closeTimeDev':0,
 	'readTimeMean':0, 'readTimeDev':0,
@@ -80,10 +80,10 @@ timingStats = ({
 	'generateTimeMean':0, 'generateTimeDev':0
 	})
   
-timingStats['openTimeMean'] = np.mean(openT) 
-timingStats['openTimeDev'] = np.std(openT)  
-timingStats['closeTimeMean'] = np.mean(close)
-timingStats['closeTimeDev'] = np.std(close)
+str(timingStats['openTimeMean'] = np.mean(openT) 
+str(timingStats['openTimeDev'] = np.std(openT)  
+str(timingStats['closeTimeMean'] = np.mean(close)
+str(timingStats['closeTimeDev'] = np.std(close)
 
 rankNumber = len(rank)
 numberOfNodes = options.numNodes
@@ -91,30 +91,30 @@ numberOfNodes = options.numNodes
 
 if choice == "The file is being verified":
     
-    timingStats['readTimeMean'] = np.mean(read)
-    timingStats['readTimeDev'] = np.std(read)
-    timingStats['verifyTimeMean'] = np.mean(verify)
-    timingStats['verifyTimeDev'] = np.std(verify)
+    str(timingStats['readTimeMean'] = np.mean(read)
+    str(timingStats['readTimeDev'] = np.std(read)
+    str(timingStats['verifyTimeMean'] = np.mean(verify)
+    str(timingStats['verifyTimeDev'] = np.std(verify)
 
 if choice == "The file is being created":
     
-    timingStats['generateTimeMean'] = np.mean(generate)
-    timingStats['generateTimeDev'] = np.std(generate)
-    timingStats['writeTimeMean'] = np.mean(write)
-    timingStats['writeTimeDev'] = np.std(write)
+    str(timingStats['generateTimeMean'] = np.mean(generate)
+    str(timingStats['generateTimeDev'] = np.std(generate)
+    str(timingStats['writeTimeMean'] = np.mean(write)
+    str(timingStats['writeTimeDev'] = np.std(write)
 
-    print "Number of nodes: " + string(numberOfNodes)
-    print "Number of I/O ranks: " + string(numberOfNodes) 
-    print "Size of file created: " + string(fileSize[0]) 
-    print "Size of chunk written by each I/O Rank: " + string(finalFileSize)
-    print "Average time taken to open file: " + timingStats['openTimeMean']+ " seconds" 
-    print "Standard deviation of time taken to open file: " + timingStats['openTimeDev']+ " seconds" 
-    print "Average time taken to generate data to be written to file: " + timingStats['generateTimeMean']+ " seconds" 
-    print "Standard deviation of time taken to generate data to be written to file: " + timingStats['generateTimeDev']+ " seconds" 
-    print "Average time taken to write to file: " + timingStats['writeTimeMean']+ " seconds" 
-    print "Standard deviation of time taken to write to file: " + timingStats['writeTimeDev']+ " seconds" 
-    print "Average time taken to close file: " + timingStats['closeTimeMean']+ " seconds" 
-    print "Standard deviation of time taken to close file: " + timingStats['closeTimeDev']+ " seconds" 
+    print "Number of nodes: " + str(numberOfNodes)
+    print "Number of I/O ranks: " + str(numberOfNodes) 
+    print "Size of file created: " + str(fileSize[0]) 
+    print "Size of chunk written by each I/O Rank: " + str(finalFileSize)
+    print "Average time taken to open file: " + str(timingStats['openTimeMean']) + " seconds" 
+    print "Standard deviation of time taken to open file: " + str(timingStats['openTimeDev']) + " seconds" 
+    print "Average time taken to generate data to be written to file: " + str(timingStats['generateTimeMean']) + " seconds" 
+    print "Standard deviation of time taken to generate data to be written to file: " + str(timingStats['generateTimeDev']) + " seconds" 
+    print "Average time taken to write to file: " + str(timingStats['writeTimeMean']) + " seconds" 
+    print "Standard deviation of time taken to write to file: " + str(timingStats['writeTimeDev']) + " seconds" 
+    print "Average time taken to close file: " + str(timingStats['closeTimeMean']) + " seconds" 
+    print "Standard deviation of time taken to close file: " + str(timingStats['closeTimeDev']) + " seconds" 
 
 
 
