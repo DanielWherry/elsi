@@ -25,10 +25,9 @@ elsi.titan.exe: main.c createFile.titan.o benchmarkFunctions.titan.o
 
 install:  	 
 	mkdir $(PREFIX)/bin 
-	cp elsi.titan.exe $(PREFIX)/bin
-	cp elsiGraph.py $(PREFIX)/bin
-	cp elsi $(PREFIX)/bin
-
+	install elsi.titan.exe $(PREFIX)/bin
+	install elsiGraph.py $(PREFIX)/bin
+	install -m +x elsi $(PREFIX)/bin
 
 
 
