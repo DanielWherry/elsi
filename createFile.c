@@ -60,17 +60,29 @@ void createFile(InfoAboutFile fileInfo, long long int* integers, int rank, long 
 	for( i = mpiInfo.rootOfGroup; i < sizeOfComm + mpiInfo.rootOfGroup; i++){
 	
 		if(rootChoice == root && i != mpiInfo.rootOfGroup){
-			MPI_Recv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, i - (mpiInfo.rootOfGroup), 0, subComm, MPI_STATUS_IGNORE);
+			Timer(
+				MPI_Recv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, i - (mpiInfo.rootOfGroup), 0, subComm, MPI_STATUS_IGNORE),
+				timerOfProcesses.readOrWriteTime
+			);
+			overallWrite += timerOfProcesses.readOrWriteTime;
 		}
 
 		if(rootChoice == notRoot && i == rank){
-			MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm);
+			Timer(
+				MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm), 
+				timerOfProcesses.readOrWriteTime
+			);
+			overallWrite += timerOfProcesses.readOrWriteTime;
 		}
 		
 		if(rootChoice == root && i == mpiInfo.rootOfGroup){
-			MPI_Irecv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, 0, 0, subComm, &request);
-			MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm);
-			MPI_Wait(&request, MPI_STATUS_IGNORE);
+			Timer(
+				MPI_Irecv(mpiInfo.integersToWrite, mpiInfo.receiveCount, MPI_LONG_LONG_INT, 0, 0, subComm, &request);
+				MPI_Send(integers, mpiInfo.sizeAssignedToRank, MPI_LONG_LONG_INT, 0, 0, subComm);
+				MPI_Wait(&request, MPI_STATUS_IGNORE);,
+				timerOfProcesses.readOrWriteTime
+			);
+			overallWrite += timerOfProcesses.readOrWriteTime;
 		}
 
 		if(rootChoice == root){
