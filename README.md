@@ -32,7 +32,7 @@ To Make a Submit Script:
 * `qsub elsi.titan.pbs`
 * Running these three commands would create a file named smallFile.dat that was 32 MB and that had a stripe count of 2 and a stripe size of 15 MB. The output would then be found in a file called `elsi-titan.oJOBID`
  
-## Run from inside an interactive job:
+## Run from Inside an Interactive Job:
 
 ```
 wey@titan-batch6:/lustre/atlas/scratch/wey/stf007> module load elsi
