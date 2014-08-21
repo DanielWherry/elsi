@@ -1,7 +1,7 @@
 .\" Manpage for ELSI tool
 .\" Contact dwherry2@my.apsu.edu for information about tool or assistance
 
-.TH elsi 1 "05 August 2014" "1.0" "Tool Usage"
+.TH elsi 1 "21 August 2014" "1.0" "Tool Usage"
 
 .SH NAME
 .B elsi 
@@ -29,13 +29,10 @@ Controls the total file size that you want to created. Specified by appending 'B
 Name of file that you wish to produce.
 
 .IP -p,--PBSscript
-No arguments, use when outside of interactive job. Generates a PBS script to submit to the queue. Meant for use with large jobs
+For use when outside of interactive job. Argument given will be the name of the submit script that is generated to submit to the queue. Meant for use with large jobs
 
 .SH SEE ALSO
 lfs setstripe, qsub   
-
-.SH BUGS
-Creates HTML reports instead of PDF reports
 
 .SH AUTHOR
 .IP "Daniel Wherry (dwherry2@my.apsu.edu) - Department of Computer Science, Austin Peay State University" 

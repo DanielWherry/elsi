@@ -12,7 +12,7 @@ parser.add_option("-S", "--fileSize", action="store", type="string", dest="fileS
 
 parser.add_option("-c", "--stripeCount", action="store", type="int", dest="stripeCount")
 
-parser.add_option("-p", "--PBSscript", action="store_true", dest="PBSscript")
+parser.add_option("-p", "--PBSscript", action="store", type="string", dest="PBSscript")
 
 (options,args) = parser.parse_args()
 
@@ -37,7 +37,7 @@ if(options.PBSscript):
     EMAIL_ADDRESS = raw_input('Enter your email address: ')
     WALL_TIME = raw_input('Enter desired walltime(hh:mm:ss): ')
     
-    f = open('elsi.titan.pbs', 'w')
+    f = open(options.PBSscript, 'w')
 
     cmds.insert(0,"#!/bin/bash")
     cmds.insert(1,"# Begin PBS directives")
