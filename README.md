@@ -10,7 +10,7 @@ Tool to estimate Lustre s striping impact on scientific application checkpointin
 * Options for the tool are `-s/--stripeSize`, `-c/--stripeCount`, `-S/--fileSize`, `-f/--fileName`, `-p/--PBSscript`, `-h/--help` 
 * `-s`: sets the stripe size using Lustre s `lfs setstripe` utility. Sizes are denoted by appending a lowercase k, m, or g to the desired size, e.g. `-s 3k` sets the stripe size to 3 KB. Remember, `lfs setstripe` can't change the striping information on a file that has already had its striping set, so change the name of the file you create for every run
 * `-c`: sets the stripe count using Lustre s `lfs setstripe` utility. Count is an integer value that, on Titan as of August 21, 2014, can not be greater than 160. An example usage would be `-c 12` which would create 12 stripes that make up your file
-* `-S`: sets the size of the file that you wish to create. Sizes are denoted by appending B, KB, MB, GB, or TB to the desired size, e.g. `-S 30TB` creates a 30 TB sized file. File sizes must be integers, e.g. `2.5TB` will not work but `2560GB` will
+* `-S`: sets the size of the file that you wish to create. Sizes are denoted by appending B, KB, MB, GB, or TB to the desired size, e.g. `-S 30TB` creates a 30 TB sized file. File sizes must be integers, e.g. 2.5TB will not work but 2560GB will. The file size can be a maximum of `25GB * NUMNODES`
 * `-f`: sets the name of the file that you wish to create. Limited to 50 characters. Example usage would be `-f thisFile.dat`
 * `-p`: option with no argument that enables the generation of a submit script called `elsi.titan.pbs`. This will cause several prompts to appear on the screen that will only ask for information that is needed in the submit script. The timing information will also be output into a file called `elsi-titan.oJOBID`
 * `-h`: outputs the different options that are available
@@ -65,4 +65,18 @@ Data Transfer
 ----------------------------------------------------------
 
 wey@titan-batch6:/lustre/atlas/scratch/wey/stf007>
+```
+## Run from a Submit Script
+```
+wey@titan-ext7:~/elsi> module load elsi
+wey@titan-ext7:~/elsi> elsi -s 5m -c 25 -S 100GB -f jake.dat -p
+Enter desired number of nodes: 4
+Enter your project ID: stf007
+Enter your email address: wey@ornl.gov
+Enter desired walltime(hh:mm:ss): 00:10:00
+wey@titan-ext7:~/elsi> qsub elsi.titan.pbs
+2048344
+wey@titan-ext7:~/elsi> ls
+elsi-titan.e2048344  elsi-titan.o2048344
+wey@titan-ext7:~/elsi>
 ```
