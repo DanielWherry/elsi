@@ -12,9 +12,9 @@ Tool to estimate Lustre s striping impact on scientific application checkpointin
 * `-c`: sets the stripe count using Lustre s `lfs setstripe` utility. Count is an integer value that, on Titan as of August 21, 2014, can not be greater than 160. An example usage would be `-c 12` which would create 12 stripes that make up your file
 * `-S`: sets the size of the file that you wish to create. Sizes are denoted by appending B, KB, MB, GB, or TB to the desired size, e.g. `-S 30TB` creates a 30 TB sized file. File sizes must be integers, e.g. 2.5TB will not work but 2560GB will. The file size can be a maximum of `25GB * NUMNODES`
 * `-f`: sets the name of the file that you wish to create. Limited to 50 characters. Example usage would be `-f thisFile.dat`
-* `-p`: option with no argument that enables the generation of a submit script called `elsi.titan.pbs`. This will cause several prompts to appear on the screen that will only ask for information that is needed in the submit script. The timing information will also be output into a file called `elsi-titan.oJOBID`
+* `-p`: enables the generation of a submit script that takes the name of the argument. This will cause several prompts to appear on the screen that will only ask for information that is needed in the submit script. The timing information will also be output into a file called `elsi-titan.oJOBID`
 * `-h`: outputs the different options that are available
-* The tool will run and output on the screen the average and standard deviation of how long it took to open the file, generate the data to write, write the data, and close the file. All timings are in seconds
+* The tool will run and output on the screen the average and standard deviation of how long it took to open the file, generate the data to write, write the data, and close the file. 
 
 ## Examples 
 
@@ -27,9 +27,9 @@ Inside an Interactive Job:
 To Make a Submit Script:
 
 * `module load elsi`
-* `elsi -s 15m -c 2 -S 32MB -f smallFile.dat -p`
+* `elsi -s 15m -c 2 -S 32MB -f smallFile.dat -p submit.pbs`
 * You will be prompted here for information that is needed in the submit script, such as the email that you will be notified at when the job is finished, your project id, the number of nodes you are requesting and the walltime needed.
-* `qsub elsi.titan.pbs`
+* `qsub submit.pbs`
 * Running these three commands would create a file named smallFile.dat that was 32 MB and that had a stripe count of 2 and a stripe size of 15 MB. The output would then be found in a file called `elsi-titan.oJOBID`
  
 ## Run from Inside an Interactive Job:
@@ -48,20 +48,20 @@ Size of file created: 625GB
 Size of chunk written by each I/O Rank: 25.0GB
 ----------------------------------------------------------
     Open file
-        Mean:   0.09376212
-     Std Dev:   0.0335738356978
+        Mean:   0.09376212 seconds
+     Std Dev:   0.0335738356978 seconds
 ----------------------------------------------------------
 Generate Data
-        Mean:   2.56231128
-     Std Dev:   0.0197928077453
+        Mean:   2.56231128 seconds
+     Std Dev:   0.0197928077453 seconds
 ----------------------------------------------------------
 Data Transfer
-        Mean:   126.60988604
-     Std Dev:   3.56994139139
+        Mean:   126.60988604 seconds
+     Std Dev:   3.56994139139 seconds
 ----------------------------------------------------------
    Close File
-        Mean:   0.00044792
-     Std Dev:   0.0007009258403
+        Mean:   0.00044792 seconds
+     Std Dev:   0.0007009258403 seconds
 ----------------------------------------------------------
 
 wey@titan-batch6:/lustre/atlas/scratch/wey/stf007>
@@ -69,14 +69,14 @@ wey@titan-batch6:/lustre/atlas/scratch/wey/stf007>
 ## Run from a Submit Script
 ```
 wey@titan-ext7:~/elsi> module load elsi
-wey@titan-ext7:~/elsi> elsi -s 5m -c 25 -S 100GB -f jake.dat -p
+wey@titan-ext7:~/elsi> elsi -s 5m -c 25 -S 100GB -f output.dat -p submit.pbs
 Enter desired number of nodes: 4
 Enter your project ID: stf007
 Enter your email address: wey@ornl.gov
 Enter desired walltime(hh:mm:ss): 00:10:00
-wey@titan-ext7:~/elsi> qsub elsi.titan.pbs
+wey@titan-ext7:~/elsi> qsub submit.pbs
 2048344
 wey@titan-ext7:~/elsi> ls
-elsi-titan.e2048344  elsi-titan.o2048344
+elsi-titan.e2048344  elsi-titan.o2048344 submit.pbs
 wey@titan-ext7:~/elsi>
 ```
