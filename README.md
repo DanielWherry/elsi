@@ -14,8 +14,6 @@ With each goal, collect performance metrics by varying:
 
 ## Usage
 
-On Titan:
-
 * Load the elsi module using "module load elsi"
 * The tool has the ability to be run from inside an interactive job as well generating a script that you can submit
 * Options for the tool are -s/--stripeSize, -c/--stripeCount, -S/--fileSize, -f/--fileName, -p/--PBSscript, -h/--help 
