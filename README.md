@@ -22,7 +22,7 @@ Inside an Interactive Job:
 
 * `module load elsi`
 * `elsi -s 10m -c 50 -S 500GB -f integer.dat`
-* Running these two commands would create a 500 Gigabyte file called integer.dat that had a stripe count of 50 and stripe size of 10 Megabytes
+* Running these two commands would create a 500 Gigabyte file called integer.dat that had a stripe count of 50 and stripe size of 10 MB
 
 To Make a Submit Script:
 
