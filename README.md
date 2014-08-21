@@ -23,7 +23,7 @@ On Titan:
 * -c: sets the stripe count using Lustre s "lfs setstripe" utility. Count is an integer value that, on Titan as of August 21, 2014, can not be greater than 160. An example usage would be "-c 12" which would create 12 stripes that make up your file
 * -S: sets the size of the file that you wish to create. Sizes are denoted by appending B, KB, MB, GB, or TB to the desired size, e.g. "-S 30TB" creates a 30 Terabyte sized file. File sizes must be integers, e.g. "2.5TB" will not work but "2560GB" will
 * -f: sets the name of the file that you wish to create. Limited to 50 characters. Example usage would be "-f thisFile.dat"
-* -p: option with no argument that enables the generation of a submit script called "elsi.titan.pbs". This will cause several prompts to appear on the screen that will only ask for information that is needed in the submit script. The timing information will also be output into a file called "elsi-titan.oXXXXXXX"
+* -p: option with no argument that enables the generation of a submit script called "elsi.titan.pbs". This will cause several prompts to appear on the screen that will only ask for information that is needed in the submit script. The timing information will also be output into a file called "elsi-titan.oXXXXXXX", where the X's represent the job id of the submission
 * -h: outputs the different options that are available
 * The tool will run and output on the screen the average and standard deviation of how long it took to open the file, generate the data to write, write the data, and close the file. All timings are in seconds
 
@@ -41,5 +41,5 @@ To Make a Submit Script:
 * "elsi -s 15m -c 2 -S 32MB -f smallFile.dat -p"
 * "several prompts go here"
 * "qsub elsi.titan.pbs"
-* Running these three commands would create a file named smallFile.dat that was 32 Megabytes and that had a stripe count of 2 and a stripe size of 15 Megabytes. The output would then be found in a file called "elsi-titan.oXXXXXXX", where the X's represent the job id associated with your qsub
+* Running these three commands would create a file named smallFile.dat that was 32 Megabytes and that had a stripe count of 2 and a stripe size of 15 Megabytes. The output would then be found in a file called "elsi-titan.oXXXXXXX", where the X's represent the job id associated with your submission
  
