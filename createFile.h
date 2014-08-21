@@ -16,7 +16,7 @@ typedef struct {
 	int* ioArray;
 	int extraWork;
 	int groupID;
-	int rootOfGroup
+	int rootOfGroup;
 	} MpiInfo;
 
 void createFile(InfoAboutFile fileInfo, long long int* integers, int , long long int, int, int numIORanks);	
