@@ -94,6 +94,7 @@ if choice == "The file is being verified":
     timingStats['readTimeDev'] = np.std(read)
     timingStats['verifyTimeMean'] = np.mean(verify)
     timingStats['verifyTimeDev'] = np.std(verify)
+    #DOES NOT REPORT ANYTHING BECAUSE VERIFY IS NOT FUNCTIONAL
 
 if choice == "The file is being created":
     
@@ -102,7 +103,7 @@ if choice == "The file is being created":
     timingStats['writeTimeMean'] = np.mean(write)
     timingStats['writeTimeDev'] = np.std(write)
 
-    print "\n----------------------------------------------------------"
+    print "\n--------------------------------------------------------"
     print "# of nodes: " + str(numberOfNodes)
     print "----------------------------------------------------------"
     print "# of I/O ranks: " + str(numberOfNodes) 
@@ -112,20 +113,20 @@ if choice == "The file is being created":
     print "Size of chunk written by each I/O Rank: " + str(finalFileSize)
     print "----------------------------------------------------------"
     print "    Open file"
-    print "        Mean:" + "   " + str(timingStats['openTimeMean'])
-    print "     Std Dev:" + "   " + str(timingStats['openTimeDev']) 
+    print "        Mean:" + "   " + str(timingStats['openTimeMean']) + " seconds"
+    print "     Std Dev:" + "   " + str(timingStats['openTimeDev']) + " seconds"
     print "----------------------------------------------------------"
     print "Generate Data"
-    print "        Mean:" + "   " + str(timingStats['generateTimeMean'])
-    print "     Std Dev:" + "   " + str(timingStats['generateTimeDev']) 
+    print "        Mean:" + "   " + str(timingStats['generateTimeMean']) + " seconds"
+    print "     Std Dev:" + "   " + str(timingStats['generateTimeDev']) + " seconds"
     print "----------------------------------------------------------"
     print "Data Transfer"
-    print "        Mean:" + "   " + str(timingStats['writeTimeMean'])
-    print "     Std Dev:" + "   " + str(timingStats['writeTimeDev']) 
+    print "        Mean:" + "   " + str(timingStats['writeTimeMean']) + " seconds"
+    print "     Std Dev:" + "   " + str(timingStats['writeTimeDev']) + " seconds"
     print "----------------------------------------------------------"
     print "   Close File"
-    print "        Mean:" + "   " + str(timingStats['closeTimeMean'])
-    print "     Std Dev:" + "   " + str(timingStats['closeTimeDev']) 
+    print "        Mean:" + "   " + str(timingStats['closeTimeMean']) + " seconds"
+    print "     Std Dev:" + "   " + str(timingStats['closeTimeDev']) + " seconds"
     print "----------------------------------------------------------\n"
 
 
